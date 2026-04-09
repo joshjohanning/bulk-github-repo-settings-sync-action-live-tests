@@ -86,7 +86,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Render main live test configuration
         env:
@@ -142,7 +142,7 @@ jobs:
           cache: 'npm'
 
       - name: Install test dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Build action
         run: cd action && npm ci && npm run package
@@ -229,7 +229,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Render repo selection test configuration
         env:
@@ -285,7 +285,7 @@ jobs:
           cache: 'npm'
 
       - name: Install test dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Build action
         run: cd action && npm ci && npm run package
@@ -445,7 +445,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Render failure test configuration
         env:
@@ -499,7 +499,7 @@ jobs:
           cache: 'npm'
 
       - name: Install test dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Build action
         run: cd action && npm ci && npm run package
