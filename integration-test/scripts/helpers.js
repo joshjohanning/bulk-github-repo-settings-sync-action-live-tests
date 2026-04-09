@@ -82,11 +82,22 @@ export async function getDefaultBranch(octokit, repoFullName) {
   return repository.default_branch;
 }
 
-export async function ensureRepositoryExists(octokit, repoFullName) {
+export async function ensureRepositoryExists(octokit, repoFullName, options = {}) {
   const { owner, repo } = getRepoParts(repoFullName);
+  const isPrivate = options.private === true;
 
   try {
-    return await getRepository(octokit, repoFullName);
+    const existing = await getRepository(octokit, repoFullName);
+    if (existing.private !== isPrivate) {
+      await octokit.rest.repos.update({
+        owner,
+        repo,
+        private: isPrivate
+      });
+      await paceMutation();
+      return await getRepository(octokit, repoFullName);
+    }
+    return existing;
   } catch (caughtError) {
     if (caughtError.status !== 404) {
       throw caughtError;
@@ -96,7 +107,7 @@ export async function ensureRepositoryExists(octokit, repoFullName) {
   await octokit.rest.repos.createInOrg({
     org: owner,
     name: repo,
-    private: false,
+    private: isPrivate,
     auto_init: true,
     description: 'Live integration test repository for bulk-github-repo-settings-sync-action'
   });
@@ -114,6 +125,52 @@ export async function ensureRepositoryExists(octokit, repoFullName) {
   }
 
   throw new Error(`Repository ${repoFullName} was created but did not become visible via the API in time`);
+}
+
+export async function ensureForkExists(octokit, sourceRepoFullName, targetRepoFullName) {
+  const source = getRepoParts(sourceRepoFullName);
+  const target = getRepoParts(targetRepoFullName);
+
+  try {
+    const existing = await getRepository(octokit, targetRepoFullName);
+    if (existing.fork === true) {
+      return existing;
+    }
+
+    throw new Error(
+      `Repository ${targetRepoFullName} already exists and is not a fork. Delete it or use a different test repository name.`
+    );
+  } catch (caughtError) {
+    if (caughtError.status !== 404) {
+      throw caughtError;
+    }
+  }
+
+  await octokit.rest.repos.createFork({
+    owner: source.owner,
+    repo: source.repo,
+    organization: target.owner,
+    name: target.repo,
+    default_branch_only: true
+  });
+  await paceMutation();
+
+  for (let attempt = 1; attempt <= 20; attempt++) {
+    try {
+      const repository = await getRepository(octokit, targetRepoFullName);
+      if (repository.fork === true) {
+        return repository;
+      }
+    } catch (caughtError) {
+      if (caughtError.status !== 404) {
+        throw caughtError;
+      }
+    }
+
+    await sleep(1500);
+  }
+
+  throw new Error(`Fork ${targetRepoFullName} was created but did not become visible via the API in time`);
 }
 
 export async function updateRepositorySettings(octokit, repoFullName, settings) {

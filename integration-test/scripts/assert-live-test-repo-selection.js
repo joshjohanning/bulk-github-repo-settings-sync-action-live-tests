@@ -63,6 +63,16 @@ function getScenarioConfig(org) {
       selectedRepos: [`${org}/it-select-rules-all-a`, `${org}/it-select-rules-all-b`, `${org}/it-select-rules-all-c`],
       untouchedRepos: [],
       expectExactCounts: false
+    },
+    'selection-rules-fork': {
+      selectedRepos: [`${org}/it-select-rules-fork-a`, `${org}/it-select-rules-fork-b`],
+      untouchedRepos: [`${org}/it-select-rules-fork-c`],
+      expectExactCounts: false
+    },
+    'selection-rules-visibility': {
+      selectedRepos: [`${org}/it-select-rules-visibility-b`, `${org}/it-select-rules-visibility-c`],
+      untouchedRepos: [`${org}/it-select-rules-visibility-a`],
+      expectExactCounts: false
     }
   };
 }
@@ -169,6 +179,46 @@ async function main() {
       assert(repositoryA.allow_auto_merge === true, `${repoA} should have auto-merge enabled`);
       assert(repositoryB.allow_auto_merge === true, `${repoB} should have auto-merge enabled`);
       assert(repositoryC.allow_auto_merge === false, `${repoC} should keep auto-merge disabled`);
+    } else if (scenarioName === 'selection-rules-fork') {
+      const repoA = `${org}/it-select-rules-fork-a`;
+      const repoB = `${org}/it-select-rules-fork-b`;
+      const repoC = `${org}/it-select-rules-fork-c`;
+
+      assertTopics(await getTopics(octokit, repoA), ['selection-rules-fork'], repoA);
+      assertTopics(await getTopics(octokit, repoB), ['selection-rules-fork'], repoB);
+      assertTopics(await getTopics(octokit, repoC), ['selection-rules-all'], repoC);
+
+      const repositoryA = await getRepository(octokit, repoA);
+      const repositoryB = await getRepository(octokit, repoB);
+      const repositoryC = await getRepository(octokit, repoC);
+
+      assert(repositoryA.fork === true, `${repoA} should be a fork`);
+      assert(repositoryB.fork === true, `${repoB} should be a fork`);
+      assert(repositoryC.fork === false, `${repoC} should not be a fork`);
+
+      assert(repositoryA.allow_update_branch === true, `${repoA} should have update branch enabled`);
+      assert(repositoryB.allow_update_branch === true, `${repoB} should have update branch enabled`);
+      assert(repositoryC.allow_update_branch === false, `${repoC} should keep update branch disabled`);
+    } else if (scenarioName === 'selection-rules-visibility') {
+      const repoA = `${org}/it-select-rules-visibility-a`;
+      const repoB = `${org}/it-select-rules-visibility-b`;
+      const repoC = `${org}/it-select-rules-visibility-c`;
+
+      assertTopics(await getTopics(octokit, repoA), ['selection-rules-all'], repoA);
+      assertTopics(await getTopics(octokit, repoB), ['selection-rules-visibility'], repoB);
+      assertTopics(await getTopics(octokit, repoC), ['selection-rules-visibility'], repoC);
+
+      const repositoryA = await getRepository(octokit, repoA);
+      const repositoryB = await getRepository(octokit, repoB);
+      const repositoryC = await getRepository(octokit, repoC);
+
+      assert(repositoryA.visibility === 'public', `${repoA} should be public`);
+      assert(repositoryB.visibility === 'private', `${repoB} should be private`);
+      assert(repositoryC.visibility === 'private', `${repoC} should be private`);
+
+      assert(repositoryA.allow_update_branch === false, `${repoA} should keep update branch disabled`);
+      assert(repositoryB.allow_update_branch === true, `${repoB} should have update branch enabled`);
+      assert(repositoryC.allow_update_branch === true, `${repoC} should have update branch enabled`);
     } else {
       throw new Error(`No repo selection assertions configured for ${scenarioName}`);
     }

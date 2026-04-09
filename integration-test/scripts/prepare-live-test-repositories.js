@@ -5,6 +5,7 @@ import {
   createPullRequest,
   createRuleset,
   createOctokit,
+  ensureForkExists,
   deleteBranchIfExists,
   deleteFileIfExists,
   deleteAutolinkIfExistsByPrefix,
@@ -135,9 +136,9 @@ async function resetDryRunRepo(octokit, repoFullName) {
   });
 }
 
-async function resetSelectionRepo(octokit, repoFullName) {
+async function resetSelectionRepo(octokit, repoFullName, options = {}) {
   info(`Resetting repo selection baseline for ${repoFullName}`);
-  await ensureRepositoryExists(octokit, repoFullName);
+  await ensureRepositoryExists(octokit, repoFullName, options);
   await replaceTopics(octokit, repoFullName, []);
   await updateRepositorySettings(octokit, repoFullName, {
     allow_squash_merge: false,
@@ -145,6 +146,12 @@ async function resetSelectionRepo(octokit, repoFullName) {
     delete_branch_on_merge: false,
     allow_update_branch: false
   });
+}
+
+async function resetSelectionForkRepo(octokit, repoFullName, sourceRepoFullName) {
+  info(`Resetting forked repo selection baseline for ${repoFullName}`);
+  await ensureForkExists(octokit, sourceRepoFullName, repoFullName);
+  await resetSelectionRepo(octokit, repoFullName);
 }
 
 async function resetArchivedRepo(octokit, repoFullName) {
@@ -459,7 +466,9 @@ async function resetPackageJsonPrRepo(octokit, repoFullName, mode) {
 async function resetRepo(octokit, repoConfig) {
   const repoFullName = repoConfig.repo;
 
-  if (repoFullName.endsWith('/it-settings-a')) {
+  if (repoConfig['fork-source-repo']) {
+    await resetSelectionForkRepo(octokit, repoFullName, repoConfig['fork-source-repo']);
+  } else if (repoFullName.endsWith('/it-settings-a')) {
     await resetSettingsRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-merge-commit-a')) {
     await resetMergeCommitRepo(octokit, repoFullName);
@@ -542,7 +551,7 @@ async function resetRepo(octokit, repoConfig) {
   } else if (repoFullName.endsWith('/it-dry-run-a')) {
     await resetDryRunRepo(octokit, repoFullName);
   } else if (repoFullName.includes('/it-select-')) {
-    await resetSelectionRepo(octokit, repoFullName);
+    await resetSelectionRepo(octokit, repoFullName, { private: repoConfig.private === true });
   } else if (repoFullName.endsWith('/it-archived-a')) {
     await resetArchivedRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-invalid-codeowners-path-a')) {

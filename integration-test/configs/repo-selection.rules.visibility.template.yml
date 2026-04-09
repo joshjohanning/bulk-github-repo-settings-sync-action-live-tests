@@ -1,0 +1,8 @@
+owner: __LIVE_TEST_ORG__
+rules:
+  - selector:
+      all: true
+      visibility: private
+    settings:
+      topics: selection-rules-visibility
+      allow-update-branch: true
