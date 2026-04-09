@@ -456,115 +456,122 @@ async function resetPackageJsonPrRepo(octokit, repoFullName, mode) {
   });
 }
 
+async function resetRepo(octokit, repoConfig) {
+  const repoFullName = repoConfig.repo;
+
+  if (repoFullName.endsWith('/it-settings-a')) {
+    await resetSettingsRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-merge-commit-a')) {
+    await resetMergeCommitRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-rebase-merge-a')) {
+    await resetRebaseMergeRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-update-branch-a')) {
+    await resetUpdateBranchRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-immutable-releases-a')) {
+    await resetImmutableReleasesRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-code-scanning-a')) {
+    await resetCodeScanningRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-secret-scanning-a')) {
+    await resetSecretScanningRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-push-protection-a')) {
+    await resetSecretScanningRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-dependabot-alerts-a')) {
+    await resetDependabotAlertsRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-dependabot-security-updates-a')) {
+    await resetDependabotSecurityUpdatesRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-dependabot-yml-a')) {
+    await resetDependabotYmlRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-gitignore-a')) {
+    await resetGitignoreRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-rulesets-a')) {
+    await resetRulesetsRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-pull-request-template-a')) {
+    await resetPullRequestTemplateRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-workflow-single-a')) {
+    await resetWorkflowSingleRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-workflows-a')) {
+    await resetWorkflowFilesRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-autolinks-a')) {
+    await resetAutolinksRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-copilot-a')) {
+    await resetCopilotRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-package-json-a')) {
+    await resetPackageJsonRepo(octokit, repoFullName, readFixture('integration-test/baselines/package.full.json'));
+  } else if (repoFullName.endsWith('/it-package-json-scripts-a')) {
+    await resetPackageJsonRepo(
+      octokit,
+      repoFullName,
+      readFixture('integration-test/baselines/package.scripts.json')
+    );
+  } else if (repoFullName.endsWith('/it-package-json-engines-a')) {
+    await resetPackageJsonRepo(
+      octokit,
+      repoFullName,
+      readFixture('integration-test/baselines/package.engines.json')
+    );
+  } else if (repoFullName.endsWith('/it-codeowners-root-a')) {
+    await resetCodeownersRootRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-codeowners-docs-a')) {
+    await resetCodeownersDocsRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-codeowners-vars-a')) {
+    await resetCodeownersVarsRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-pr-up-to-date-a')) {
+    await resetDependabotPrRepo(octokit, repoFullName, 'up-to-date');
+  } else if (repoFullName.endsWith('/it-pr-updated-a')) {
+    await resetDependabotPrRepo(octokit, repoFullName, 'updated');
+  } else if (repoFullName.endsWith('/it-pr-dry-run-update-a')) {
+    await resetDependabotPrRepo(octokit, repoFullName, 'updated');
+  } else if (repoFullName.endsWith('/it-pr-workflows-created-a')) {
+    await resetWorkflowPrRepo(octokit, repoFullName, 'created');
+  } else if (repoFullName.endsWith('/it-pr-workflows-mixed-a')) {
+    await resetWorkflowPrRepo(octokit, repoFullName, 'mixed');
+  } else if (repoFullName.endsWith('/it-pr-package-json-up-to-date-a')) {
+    await resetPackageJsonPrRepo(octokit, repoFullName, 'up-to-date');
+  } else if (repoFullName.endsWith('/it-pr-package-json-updated-a')) {
+    await resetPackageJsonPrRepo(octokit, repoFullName, 'updated');
+  } else if (repoFullName.endsWith('/it-pr-package-json-dry-run-update-a')) {
+    await resetPackageJsonPrRepo(octokit, repoFullName, 'updated');
+  } else if (repoFullName.endsWith('/it-topics-a')) {
+    await resetTopicsRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-codeowners-a')) {
+    await resetCodeownersRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-warning-a')) {
+    await resetCodeownersRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-unchanged-a')) {
+    await resetUnchangedRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-dry-run-a')) {
+    await resetDryRunRepo(octokit, repoFullName);
+  } else if (repoFullName.includes('/it-select-')) {
+    await resetSelectionRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-archived-a')) {
+    await resetArchivedRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-invalid-codeowners-path-a')) {
+    await resetInvalidCodeownersPathRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-invalid-workflows-file-a')) {
+    await resetInvalidWorkflowFilesRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-missing-package-json-a')) {
+    await resetMissingPackageJsonRepo(octokit, repoFullName);
+  } else if (
+    repoFullName.endsWith('/it-invalid-autolinks-file-a') ||
+    repoFullName.endsWith('/it-invalid-rulesets-file-a') ||
+    repoFullName.endsWith('/it-invalid-package-json-file-a')
+  ) {
+    await ensureRepositoryExists(octokit, repoFullName);
+  } else {
+    throw new Error(`No reset scenario configured for ${repoFullName}`);
+  }
+}
+
+const BATCH_SIZE = 5;
+
 async function main() {
   try {
     const octokit = createOctokit();
     const { repos } = readIntegrationConfig();
 
-    for (const repoConfig of repos) {
-      const repoFullName = repoConfig.repo;
-
-      if (repoFullName.endsWith('/it-settings-a')) {
-        await resetSettingsRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-merge-commit-a')) {
-        await resetMergeCommitRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-rebase-merge-a')) {
-        await resetRebaseMergeRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-update-branch-a')) {
-        await resetUpdateBranchRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-immutable-releases-a')) {
-        await resetImmutableReleasesRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-code-scanning-a')) {
-        await resetCodeScanningRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-secret-scanning-a')) {
-        await resetSecretScanningRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-push-protection-a')) {
-        await resetSecretScanningRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-dependabot-alerts-a')) {
-        await resetDependabotAlertsRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-dependabot-security-updates-a')) {
-        await resetDependabotSecurityUpdatesRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-dependabot-yml-a')) {
-        await resetDependabotYmlRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-gitignore-a')) {
-        await resetGitignoreRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-rulesets-a')) {
-        await resetRulesetsRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-pull-request-template-a')) {
-        await resetPullRequestTemplateRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-workflow-single-a')) {
-        await resetWorkflowSingleRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-workflows-a')) {
-        await resetWorkflowFilesRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-autolinks-a')) {
-        await resetAutolinksRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-copilot-a')) {
-        await resetCopilotRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-package-json-a')) {
-        await resetPackageJsonRepo(octokit, repoFullName, readFixture('integration-test/baselines/package.full.json'));
-      } else if (repoFullName.endsWith('/it-package-json-scripts-a')) {
-        await resetPackageJsonRepo(
-          octokit,
-          repoFullName,
-          readFixture('integration-test/baselines/package.scripts.json')
-        );
-      } else if (repoFullName.endsWith('/it-package-json-engines-a')) {
-        await resetPackageJsonRepo(
-          octokit,
-          repoFullName,
-          readFixture('integration-test/baselines/package.engines.json')
-        );
-      } else if (repoFullName.endsWith('/it-codeowners-root-a')) {
-        await resetCodeownersRootRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-codeowners-docs-a')) {
-        await resetCodeownersDocsRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-codeowners-vars-a')) {
-        await resetCodeownersVarsRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-pr-up-to-date-a')) {
-        await resetDependabotPrRepo(octokit, repoFullName, 'up-to-date');
-      } else if (repoFullName.endsWith('/it-pr-updated-a')) {
-        await resetDependabotPrRepo(octokit, repoFullName, 'updated');
-      } else if (repoFullName.endsWith('/it-pr-dry-run-update-a')) {
-        await resetDependabotPrRepo(octokit, repoFullName, 'updated');
-      } else if (repoFullName.endsWith('/it-pr-workflows-created-a')) {
-        await resetWorkflowPrRepo(octokit, repoFullName, 'created');
-      } else if (repoFullName.endsWith('/it-pr-workflows-mixed-a')) {
-        await resetWorkflowPrRepo(octokit, repoFullName, 'mixed');
-      } else if (repoFullName.endsWith('/it-pr-package-json-up-to-date-a')) {
-        await resetPackageJsonPrRepo(octokit, repoFullName, 'up-to-date');
-      } else if (repoFullName.endsWith('/it-pr-package-json-updated-a')) {
-        await resetPackageJsonPrRepo(octokit, repoFullName, 'updated');
-      } else if (repoFullName.endsWith('/it-pr-package-json-dry-run-update-a')) {
-        await resetPackageJsonPrRepo(octokit, repoFullName, 'updated');
-      } else if (repoFullName.endsWith('/it-topics-a')) {
-        await resetTopicsRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-codeowners-a')) {
-        await resetCodeownersRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-warning-a')) {
-        await resetCodeownersRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-unchanged-a')) {
-        await resetUnchangedRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-dry-run-a')) {
-        await resetDryRunRepo(octokit, repoFullName);
-      } else if (repoFullName.includes('/it-select-')) {
-        await resetSelectionRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-archived-a')) {
-        await resetArchivedRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-invalid-codeowners-path-a')) {
-        await resetInvalidCodeownersPathRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-invalid-workflows-file-a')) {
-        await resetInvalidWorkflowFilesRepo(octokit, repoFullName);
-      } else if (repoFullName.endsWith('/it-missing-package-json-a')) {
-        await resetMissingPackageJsonRepo(octokit, repoFullName);
-      } else if (
-        repoFullName.endsWith('/it-invalid-autolinks-file-a') ||
-        repoFullName.endsWith('/it-invalid-rulesets-file-a') ||
-        repoFullName.endsWith('/it-invalid-package-json-file-a')
-      ) {
-        await ensureRepositoryExists(octokit, repoFullName);
-      } else {
-        throw new Error(`No reset scenario configured for ${repoFullName}`);
-      }
+    for (let i = 0; i < repos.length; i += BATCH_SIZE) {
+      const batch = repos.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map(repoConfig => resetRepo(octokit, repoConfig)));
     }
 
     await resetSelectionCustomProperties(octokit, repos);
