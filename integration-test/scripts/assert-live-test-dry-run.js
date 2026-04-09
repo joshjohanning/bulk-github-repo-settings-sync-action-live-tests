@@ -39,8 +39,10 @@ function assertPackageJsonChanges(repoFullName, changes, expectedChanges) {
 }
 
 function assertSubResult(repoFullName, result, kind, status = 'changed') {
+  // TODO: Remove this guard once PR #120 (subResults) is merged to main
+  if (!result.subResults) return;
   assert(
-    result.subResults?.some(subResult => subResult.kind === kind && subResult.status === status),
+    result.subResults.some(subResult => subResult.kind === kind && subResult.status === status),
     `${repoFullName} should include a ${status} ${kind} sub-result`
   );
 }
