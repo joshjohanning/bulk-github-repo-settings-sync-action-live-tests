@@ -258,6 +258,10 @@ jobs:
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repo-selection.rules.repos.yml
           cp integration-test/configs/repo-selection.rules.all.template.yml integration-test/configs/repo-selection.rules.all.yml
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repo-selection.rules.all.yml
+          cp integration-test/configs/repo-selection.rules.fork.template.yml integration-test/configs/repo-selection.rules.fork.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repo-selection.rules.fork.yml
+          cp integration-test/configs/repo-selection.rules.visibility.template.yml integration-test/configs/repo-selection.rules.visibility.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repo-selection.rules.visibility.yml
 
       - name: Prepare repo selection test repositories
         env:
@@ -314,6 +318,10 @@ jobs:
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repo-selection.rules.repos.yml
           cp integration-test/configs/repo-selection.rules.all.template.yml integration-test/configs/repo-selection.rules.all.yml
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repo-selection.rules.all.yml
+          cp integration-test/configs/repo-selection.rules.fork.template.yml integration-test/configs/repo-selection.rules.fork.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repo-selection.rules.fork.yml
+          cp integration-test/configs/repo-selection.rules.visibility.template.yml integration-test/configs/repo-selection.rules.visibility.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repo-selection.rules.visibility.yml
 
       - name: Run repositories list scenario
         id: selection-list
@@ -429,6 +437,50 @@ jobs:
           ACTION_FAILED_REPOSITORIES: ${{ steps.selection-rules-all-and-property.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.selection-rules-all-and-property.outputs['warning-repositories'] }}
           ACTION_RESULTS: ${{ steps.selection-rules-all-and-property.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-repo-selection.js
+
+      - name: Run rules fork scenario
+        id: selection-rules-fork
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repo-selection.rules.fork.yml
+
+      - name: Assert rules fork scenario
+        env:
+          LIVE_TEST_ORG: ${{ vars.LIVE_TEST_ORG }}
+          SELECTION_SCENARIO: selection-rules-fork
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.selection-rules-fork.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.selection-rules-fork.outputs['changed-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.selection-rules-fork.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.selection-rules-fork.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.selection-rules-fork.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.selection-rules-fork.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-repo-selection.js
+
+      - name: Run rules visibility scenario
+        id: selection-rules-visibility
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repo-selection.rules.visibility.yml
+
+      - name: Assert rules visibility scenario
+        env:
+          LIVE_TEST_ORG: ${{ vars.LIVE_TEST_ORG }}
+          SELECTION_SCENARIO: selection-rules-visibility
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.selection-rules-visibility.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.selection-rules-visibility.outputs['changed-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.selection-rules-visibility.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.selection-rules-visibility.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.selection-rules-visibility.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.selection-rules-visibility.outputs['results'] }}
         run: node integration-test/scripts/assert-live-test-repo-selection.js
 
   prepare-failure:

@@ -14,3 +14,13 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-select-rules-all-a
   - repo: __LIVE_TEST_ORG__/it-select-rules-all-b
   - repo: __LIVE_TEST_ORG__/it-select-rules-all-c
+  - repo: __LIVE_TEST_ORG__/it-select-rules-fork-a
+    fork-source-repo: octocat/Hello-World
+  - repo: __LIVE_TEST_ORG__/it-select-rules-fork-b
+    fork-source-repo: octocat/Hello-World
+  - repo: __LIVE_TEST_ORG__/it-select-rules-fork-c
+  - repo: __LIVE_TEST_ORG__/it-select-rules-visibility-a
+  - repo: __LIVE_TEST_ORG__/it-select-rules-visibility-b
+    private: true
+  - repo: __LIVE_TEST_ORG__/it-select-rules-visibility-c
+    private: true
