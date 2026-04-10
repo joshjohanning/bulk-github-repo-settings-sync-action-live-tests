@@ -298,7 +298,7 @@ async function assertRulesetsRepo(octokit, repoFullName, result) {
     ),
     `${repoFullName} should report the obsolete ruleset as deleted`
   );
-  assertSubResult(repoFullName, result, 'ruleset-sync');
+  assertSubResult(repoFullName, result, 'ruleset-create');
 }
 
 async function assertPullRequestTemplateRepo(octokit, repoFullName, result) {
