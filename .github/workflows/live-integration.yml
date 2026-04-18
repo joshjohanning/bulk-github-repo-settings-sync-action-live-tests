@@ -3,6 +3,11 @@ name: Live Integration Tests
 on:
   workflow_dispatch:
     inputs:
+      repository:
+        description: 'Action repository to test'
+        required: false
+        default: 'joshjohanning/bulk-github-repo-settings-sync-action'
+        type: string
       ref:
         description: 'Action ref to test (branch, tag, or SHA)'
         required: false
@@ -34,9 +39,6 @@ concurrency:
 
 run-name: "Live Tests: ${{ inputs.pr && format('PR #{0}', inputs.pr) || inputs.ref || 'main' }} (${{ inputs.suite }})"
 
-env:
-  ACTION_REPO: joshjohanning/bulk-github-repo-settings-sync-action
-
 jobs:
   resolve-ref:
     runs-on: ubuntu-latest
@@ -51,13 +53,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if [ -n "${{ inputs.pr }}" ]; then
-            REPOSITORY=$(gh pr view ${{ inputs.pr }} --repo ${{ env.ACTION_REPO }} --json headRepository -q .headRepository.nameWithOwner)
-            REF=$(gh pr view ${{ inputs.pr }} --repo ${{ env.ACTION_REPO }} --json headRefName -q .headRefName)
+            REPOSITORY=$(gh pr view ${{ inputs.pr }} --repo ${{ inputs.repository }} --json headRepository -q .headRepository.nameWithOwner)
+            REF=$(gh pr view ${{ inputs.pr }} --repo ${{ inputs.repository }} --json headRefName -q .headRefName)
             echo "repository=$REPOSITORY" >> "$GITHUB_OUTPUT"
             echo "ref=$REF" >> "$GITHUB_OUTPUT"
             echo "display=PR #${{ inputs.pr }} ($REPOSITORY@$REF)" >> "$GITHUB_OUTPUT"
           else
-            echo "repository=${{ env.ACTION_REPO }}" >> "$GITHUB_OUTPUT"
+            echo "repository=${{ inputs.repository }}" >> "$GITHUB_OUTPUT"
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
             echo "display=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
           fi
@@ -72,7 +74,7 @@ jobs:
           echo "| Setting | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|---------|-------|" >> $GITHUB_STEP_SUMMARY
           if [ -n "${{ inputs.pr }}" ]; then
-            echo "| **PR** | <a href=\"https://github.com/${{ env.ACTION_REPO }}/pull/${{ inputs.pr }}\">#${{ inputs.pr }}</a> |" >> $GITHUB_STEP_SUMMARY
+            echo "| **PR** | <a href=\"https://github.com/${{ inputs.repository }}/pull/${{ inputs.pr }}\">#${{ inputs.pr }}</a> |" >> $GITHUB_STEP_SUMMARY
           fi
           echo "| **Action repo** | <a href=\"https://github.com/${{ steps.resolve.outputs.repository }}\">${{ steps.resolve.outputs.repository }}</a> |" >> $GITHUB_STEP_SUMMARY
           echo "| **Action ref** | <a href=\"https://github.com/${{ steps.resolve.outputs.repository }}/tree/${{ steps.resolve.outputs.ref }}\">${{ steps.resolve.outputs.ref }}</a> |" >> $GITHUB_STEP_SUMMARY

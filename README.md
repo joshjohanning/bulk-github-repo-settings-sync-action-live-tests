@@ -18,6 +18,7 @@ Go to **Actions → Live Integration Tests → Run workflow** and provide:
 
 | Input | Description |
 |-------|-------------|
+| `repository` | Action repository to test (default: `joshjohanning/bulk-github-repo-settings-sync-action`) |
 | `ref` | Branch, tag, or SHA from the action repo to test (default: `main`) |
 | `pr` | PR number to test (overrides `ref`) |
 | `suite` | `all`, `main`, `selection`, or `failure` |
@@ -28,6 +29,7 @@ Go to **Actions → Live Integration Tests → Run workflow** and provide:
 - Test main branch: leave defaults
 - Test a PR: set `pr` to `123`
 - Test a specific branch: set `ref` to `refactor/normalize-result-model`
+- Test your fork: set `repository` to `owner/repo`
 
 ## Setup
 
