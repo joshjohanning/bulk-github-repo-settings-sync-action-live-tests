@@ -313,6 +313,17 @@ async function resetRulesetsRepo(octokit, repoFullName) {
   await createRuleset(octokit, repoFullName, obsoleteRuleset);
 }
 
+async function resetRulesetsUpdateRepo(octokit, repoFullName) {
+  info(`Resetting rulesets update baseline for ${repoFullName}`);
+  await ensureRepositoryExists(octokit, repoFullName);
+  const outdatedManagedRuleset = readJsonFixture('integration-test/baselines/managed-ruleset.outdated.json');
+  const obsoleteRuleset = readJsonFixture('integration-test/baselines/obsolete-ruleset.json');
+  await deleteRulesetIfExistsByName(octokit, repoFullName, 'Integration Branch Protection');
+  await deleteRulesetIfExistsByName(octokit, repoFullName, obsoleteRuleset.name);
+  await createRuleset(octokit, repoFullName, outdatedManagedRuleset);
+  await createRuleset(octokit, repoFullName, obsoleteRuleset);
+}
+
 async function resetPullRequestTemplateRepo(octokit, repoFullName) {
   info(`Resetting pull request template baseline for ${repoFullName}`);
   await resetPrSyncRepo(octokit, repoFullName, 'pull-request-template-sync', ['.github/pull_request_template.md']);
@@ -494,6 +505,8 @@ async function resetRepo(octokit, repoConfig) {
     await resetGitignoreRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-rulesets-a')) {
     await resetRulesetsRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-rulesets-update-a')) {
+    await resetRulesetsUpdateRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-pull-request-template-a')) {
     await resetPullRequestTemplateRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-workflow-single-a')) {

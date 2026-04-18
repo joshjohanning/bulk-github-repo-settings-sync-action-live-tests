@@ -302,6 +302,36 @@ async function assertRulesetsRepo(octokit, repoFullName, result) {
   assertSubResult(repoFullName, result, 'ruleset-delete');
 }
 
+async function assertRulesetsUpdateRepo(octokit, repoFullName, result) {
+  const managedRuleset = await getRulesetByName(octokit, repoFullName, 'Integration Branch Protection');
+  const obsoleteRuleset = await getRulesetByName(octokit, repoFullName, 'Obsolete Integration Ruleset');
+
+  assert(managedRuleset, `${repoFullName} should have the managed ruleset`);
+  assert(obsoleteRuleset === null, `${repoFullName} should not have the obsolete ruleset anymore`);
+  assert(result.success === true, `${repoFullName} result should be successful`);
+  assert(result.hasWarnings === false, `${repoFullName} should not have warnings`);
+  assert(result.rulesetSync?.success === true, `${repoFullName} ruleset sync should be successful`);
+  assert(result.rulesetSync?.ruleset === 'updated', `${repoFullName} ruleset sync should report updated`);
+  assert(result.rulesetSync?.rulesetId === managedRuleset.id, `${repoFullName} should report managed ruleset ID`);
+  assert(managedRuleset.enforcement === 'active', `${repoFullName} managed ruleset should be active`);
+  assert(
+    managedRuleset.rules.some(rule => rule.type === 'deletion'),
+    `${repoFullName} managed ruleset should include the deletion rule`
+  );
+  assert(
+    managedRuleset.rules.some(rule => rule.type === 'non_fast_forward'),
+    `${repoFullName} managed ruleset should include the non_fast_forward rule`
+  );
+  assert(
+    result.rulesetSync?.deletedRulesets?.some(
+      ruleset => ruleset.name === 'Obsolete Integration Ruleset' && ruleset.deleted
+    ),
+    `${repoFullName} should report the obsolete ruleset as deleted`
+  );
+  assertSubResult(repoFullName, result, 'ruleset-update');
+  assertSubResult(repoFullName, result, 'ruleset-delete');
+}
+
 async function assertPullRequestTemplateRepo(octokit, repoFullName, result) {
   await assertSinglePrFileSyncRepo(octokit, repoFullName, result, {
     branchName: 'pull-request-template-sync',
@@ -625,8 +655,8 @@ async function main() {
     const { repos } = readIntegrationConfig();
     const results = parseResultsOutput();
 
-    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 34, 'updated-repositories should equal 34');
-    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 32, 'changed-repositories should equal 32');
+    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 35, 'updated-repositories should equal 35');
+    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 33, 'changed-repositories should equal 33');
     assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 2, 'unchanged-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
     assert(parseIntegerOutput('ACTION_WARNING_REPOSITORIES') === 1, 'warning-repositories should equal 1');
@@ -664,6 +694,8 @@ async function main() {
         await assertGitignoreRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-rulesets-a')) {
         await assertRulesetsRepo(octokit, repoConfig.repo, result);
+      } else if (repoConfig.repo.endsWith('/it-rulesets-update-a')) {
+        await assertRulesetsUpdateRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-pull-request-template-a')) {
         await assertPullRequestTemplateRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-workflow-single-a')) {

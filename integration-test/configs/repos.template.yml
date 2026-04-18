@@ -43,6 +43,10 @@ repos:
     rulesets-file: ./integration-test/sources/ruleset.json
     delete-unmanaged-rulesets: true
 
+  - repo: __LIVE_TEST_ORG__/it-rulesets-update-a
+    rulesets-file: ./integration-test/sources/ruleset.json
+    delete-unmanaged-rulesets: true
+
   - repo: __LIVE_TEST_ORG__/it-pull-request-template-a
     pull-request-template: ./integration-test/sources/pull-request-template.md
 
