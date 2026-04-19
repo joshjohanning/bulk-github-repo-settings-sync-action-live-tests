@@ -47,6 +47,14 @@ const SELECTION_CUSTOM_PROPERTIES = {
       'it-select-prop-c': 'ignore'
     }
   },
+  live_test_selector_private: {
+    description: 'Live integration selector property including private repositories',
+    repos: {
+      'it-select-prop-public-selected-a': 'blue',
+      'it-select-prop-private-selected-b': 'green',
+      'it-select-prop-private-ignored-c': 'ignore'
+    }
+  },
   live_test_rules_selector: {
     description: 'Live integration rules selector property',
     repos: {

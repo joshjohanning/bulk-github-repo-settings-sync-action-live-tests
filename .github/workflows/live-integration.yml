@@ -373,6 +373,31 @@ jobs:
           ACTION_RESULTS: ${{ steps.selection-custom-property.outputs['results'] }}
         run: node integration-test/scripts/assert-live-test-repo-selection.js
 
+      - name: Run custom property private visibility scenario
+        id: selection-custom-property-private
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          owner: ${{ vars.LIVE_TEST_ORG }}
+          custom-property-name: live_test_selector_private
+          custom-property-value: blue,green
+          topics: selection-custom-property-private
+
+      - name: Assert custom property private visibility scenario
+        env:
+          LIVE_TEST_ORG: ${{ vars.LIVE_TEST_ORG }}
+          SELECTION_SCENARIO: selection-custom-property-private
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.selection-custom-property-private.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.selection-custom-property-private.outputs['changed-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.selection-custom-property-private.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.selection-custom-property-private.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.selection-custom-property-private.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.selection-custom-property-private.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-repo-selection.js
+
       - name: Run rules repos scenario
         id: selection-rules-repos
         uses: ./action/

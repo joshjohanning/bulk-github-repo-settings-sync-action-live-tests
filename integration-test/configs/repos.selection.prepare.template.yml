@@ -8,6 +8,11 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-select-prop-a
   - repo: __LIVE_TEST_ORG__/it-select-prop-b
   - repo: __LIVE_TEST_ORG__/it-select-prop-c
+  - repo: __LIVE_TEST_ORG__/it-select-prop-public-selected-a
+  - repo: __LIVE_TEST_ORG__/it-select-prop-private-selected-b
+    private: true
+  - repo: __LIVE_TEST_ORG__/it-select-prop-private-ignored-c
+    private: true
   - repo: __LIVE_TEST_ORG__/it-select-rules-a
   - repo: __LIVE_TEST_ORG__/it-select-rules-b
   - repo: __LIVE_TEST_ORG__/it-select-rules-c
