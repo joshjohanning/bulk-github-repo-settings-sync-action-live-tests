@@ -184,6 +184,7 @@ jobs:
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repos.dry-run.yml
           dry-run: true
+          summary-heading: Repo file dry-run update
 
       - name: Assert dry-run live integration results
         env:
@@ -205,6 +206,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repos.yml
+          summary-heading: Repo file update
 
       - name: Assert live integration results
         env:
@@ -333,6 +335,7 @@ jobs:
           github-api-url: ${{ github.api_url }}
           repositories: ${{ vars.LIVE_TEST_ORG }}/it-select-list-a,${{ vars.LIVE_TEST_ORG }}/it-select-list-b
           topics: selection-list
+          summary-heading: Repo list update
 
       - name: Assert repositories list scenario
         env:
@@ -358,6 +361,7 @@ jobs:
           custom-property-name: live_test_selector
           custom-property-value: blue,green
           topics: selection-custom-property
+          summary-heading: Custom property update
 
       - name: Assert custom property scenario
         env:
@@ -383,6 +387,7 @@ jobs:
           custom-property-name: live_test_selector_private
           custom-property-value: blue,green
           topics: selection-custom-property-private
+          summary-heading: Custom property private visibility update
 
       - name: Assert custom property private visibility scenario
         env:
@@ -405,6 +410,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repo-selection.rules.repos.yml
+          summary-heading: Rules selector repos update
 
       - name: Assert rules repos scenario
         env:
@@ -429,6 +435,7 @@ jobs:
           repositories: all
           owner: ${{ vars.LIVE_TEST_ORG }}
           topics: selection-all
+          summary-heading: Repo list all update
 
       - name: Assert repositories all scenario
         env:
@@ -451,6 +458,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repo-selection.rules.all.yml
+          summary-heading: Rules selector all and property update
 
       - name: Assert rules all and property scenario
         env:
@@ -473,6 +481,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repo-selection.rules.fork.yml
+          summary-heading: Rules selector fork update
 
       - name: Assert rules fork scenario
         env:
@@ -495,6 +504,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repo-selection.rules.visibility.yml
+          summary-heading: Rules selector visibility update
 
       - name: Assert rules visibility scenario
         env:
@@ -611,6 +621,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repos.failure.yml
+          summary-heading: Failure scenario results
 
       - name: Print failure scenario action outputs
         run: |
