@@ -300,6 +300,48 @@ export async function setSecurityAndAnalysis(octokit, repoFullName, securityAndA
   await paceMutation();
 }
 
+export async function getPrivateVulnerabilityReportingEnabled(octokit, repoFullName) {
+  const { owner, repo } = getRepoParts(repoFullName);
+
+  try {
+    const response = await octokit.request('GET /repos/{owner}/{repo}/private-vulnerability-reporting', {
+      owner,
+      repo,
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28'
+      }
+    });
+    return response.data.enabled === true;
+  } catch (caughtError) {
+    if (caughtError.status === 404) {
+      return false;
+    }
+    throw caughtError;
+  }
+}
+
+export async function setPrivateVulnerabilityReportingEnabled(octokit, repoFullName, enabled) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  const method = enabled ? 'PUT' : 'DELETE';
+
+  try {
+    await octokit.request(`${method} /repos/{owner}/{repo}/private-vulnerability-reporting`, {
+      owner,
+      repo,
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28'
+      }
+    });
+  } catch (caughtError) {
+    if (!enabled && caughtError.status === 404) {
+      return;
+    }
+    throw caughtError;
+  }
+
+  await paceMutation();
+}
+
 export async function getDependabotAlertsEnabled(octokit, repoFullName) {
   const { owner, repo } = getRepoParts(repoFullName);
 

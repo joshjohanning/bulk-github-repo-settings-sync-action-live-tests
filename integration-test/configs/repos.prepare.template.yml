@@ -7,6 +7,7 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-code-scanning-a
   - repo: __LIVE_TEST_ORG__/it-secret-scanning-a
   - repo: __LIVE_TEST_ORG__/it-push-protection-a
+  - repo: __LIVE_TEST_ORG__/it-private-vulnerability-reporting-a
   - repo: __LIVE_TEST_ORG__/it-dependabot-alerts-a
   - repo: __LIVE_TEST_ORG__/it-dependabot-security-updates-a
   - repo: __LIVE_TEST_ORG__/it-dependabot-yml-a

@@ -26,6 +26,9 @@ repos:
     secret-scanning: true
     secret-scanning-push-protection: true
 
+  - repo: __LIVE_TEST_ORG__/it-private-vulnerability-reporting-a
+    private-vulnerability-reporting: true
+
   - repo: __LIVE_TEST_ORG__/it-dependabot-alerts-a
     dependabot-alerts: true
 

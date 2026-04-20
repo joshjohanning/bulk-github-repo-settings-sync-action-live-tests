@@ -17,6 +17,7 @@ import {
   setDependabotAlertsEnabled,
   setDependabotSecurityUpdatesEnabled,
   setImmutableReleasesEnabled,
+  setPrivateVulnerabilityReportingEnabled,
   setOrgCustomPropertyValues,
   setRepositoryArchived,
   setSecurityAndAnalysis,
@@ -279,6 +280,12 @@ async function resetDependabotAlertsRepo(octokit, repoFullName) {
   await setDependabotAlertsEnabled(octokit, repoFullName, false);
 }
 
+async function resetPrivateVulnerabilityReportingRepo(octokit, repoFullName) {
+  info(`Resetting private vulnerability reporting baseline for ${repoFullName}`);
+  await ensureRepositoryExists(octokit, repoFullName);
+  await setPrivateVulnerabilityReportingEnabled(octokit, repoFullName, false);
+}
+
 async function resetDependabotSecurityUpdatesRepo(octokit, repoFullName) {
   info(`Resetting Dependabot security updates baseline for ${repoFullName}`);
   await ensureRepositoryExists(octokit, repoFullName);
@@ -495,6 +502,8 @@ async function resetRepo(octokit, repoConfig) {
     await resetSecretScanningRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-push-protection-a')) {
     await resetSecretScanningRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-private-vulnerability-reporting-a')) {
+    await resetPrivateVulnerabilityReportingRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-dependabot-alerts-a')) {
     await resetDependabotAlertsRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-dependabot-security-updates-a')) {

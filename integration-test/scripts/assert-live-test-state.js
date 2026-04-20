@@ -8,6 +8,7 @@ import {
   getDependabotAlertsEnabled,
   getDependabotSecurityUpdatesEnabled,
   getImmutableReleasesEnabled,
+  getPrivateVulnerabilityReportingEnabled,
   getRulesetByName,
   getRepository,
   getTopics,
@@ -217,6 +218,19 @@ async function assertPushProtectionRepo(octokit, repoFullName, result) {
   );
   assertSubResult(repoFullName, result, 'secret-scanning');
   assertSubResult(repoFullName, result, 'push-protection');
+}
+
+async function assertPrivateVulnerabilityReportingRepo(octokit, repoFullName, result) {
+  const enabled = await getPrivateVulnerabilityReportingEnabled(octokit, repoFullName);
+
+  assert(enabled === true, `${repoFullName} private vulnerability reporting should be enabled`);
+  assert(result.success === true, `${repoFullName} result should be successful`);
+  assert(result.hasWarnings === false, `${repoFullName} should not have warnings`);
+  assert(
+    result.privateVulnerabilityReportingChange?.to === true,
+    `${repoFullName} should report private vulnerability reporting enabled`
+  );
+  assertSubResult(repoFullName, result, 'private-vulnerability-reporting');
 }
 
 async function assertDependabotAlertsRepo(octokit, repoFullName, result) {
@@ -655,7 +669,7 @@ async function main() {
     const { repos } = readIntegrationConfig();
     const results = parseResultsOutput();
 
-    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 35, 'updated-repositories should equal 35');
+    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 36, 'updated-repositories should equal 35');
     assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 33, 'changed-repositories should equal 33');
     assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 2, 'unchanged-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
@@ -684,6 +698,8 @@ async function main() {
         await assertSecretScanningRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-push-protection-a')) {
         await assertPushProtectionRepo(octokit, repoConfig.repo, result);
+      } else if (repoConfig.repo.endsWith('/it-private-vulnerability-reporting-a')) {
+        await assertPrivateVulnerabilityReportingRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-dependabot-alerts-a')) {
         await assertDependabotAlertsRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-dependabot-security-updates-a')) {
