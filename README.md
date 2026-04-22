@@ -42,8 +42,8 @@ Create a dedicated GitHub organization for tests. Every repository in it should 
 Create a GitHub App with the permissions listed below, installed on the test org only.
 
 In this repository, set:
-- Variable `LIVE_TEST_CLIENT_ID` — the GitHub App client ID
-- Secret `LIVE_TEST_APP_PRIVATE_KEY` — the App private key
+- Variable `APP_CLIENT_ID` — the GitHub App client ID
+- Secret `APP_PRIVATE_KEY` — the App private key
 
 ### Required Permissions
 
