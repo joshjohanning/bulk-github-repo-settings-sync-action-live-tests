@@ -61,7 +61,7 @@ jobs:
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: List repositories that will be deleted
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           LIVE_TEST_ORG: ${{ vars.LIVE_TEST_ORG }}
         with:
@@ -82,7 +82,7 @@ jobs:
             core.setOutput('repo-count', String(repos.length));
 
       - name: Delete all repositories in LIVE_TEST_ORG
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           LIVE_TEST_ORG: ${{ vars.LIVE_TEST_ORG }}
         with:
