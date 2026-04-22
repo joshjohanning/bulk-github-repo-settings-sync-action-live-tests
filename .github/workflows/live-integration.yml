@@ -182,6 +182,7 @@ jobs:
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repos.dry-run.yml
           dry-run: true
+          summary-heading: 'Live Test: Main Suite'
 
       - name: Assert dry-run live integration results
         env:
@@ -203,6 +204,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repos.yml
+          summary-heading: 'Live Test: Main Suite'
 
       - name: Assert live integration results
         env:
@@ -331,6 +333,7 @@ jobs:
           github-api-url: ${{ github.api_url }}
           repositories: ${{ vars.LIVE_TEST_ORG }}/it-select-list-a,${{ vars.LIVE_TEST_ORG }}/it-select-list-b
           topics: selection-list
+          summary-heading: 'Live Test: Selection by List'
 
       - name: Assert repositories list scenario
         env:
@@ -356,6 +359,7 @@ jobs:
           custom-property-name: live_test_selector
           custom-property-value: blue,green
           topics: selection-custom-property
+          summary-heading: 'Live Test: Selection by Custom Property'
 
       - name: Assert custom property scenario
         env:
@@ -378,6 +382,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repo-selection.rules.repos.yml
+          summary-heading: 'Live Test: Selection by Rules (Repos)'
 
       - name: Assert rules repos scenario
         env:
@@ -402,6 +407,7 @@ jobs:
           repositories: all
           owner: ${{ vars.LIVE_TEST_ORG }}
           topics: selection-all
+          summary-heading: 'Live Test: Selection All'
 
       - name: Assert repositories all scenario
         env:
@@ -424,6 +430,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repo-selection.rules.all.yml
+          summary-heading: 'Live Test: Selection by Rules (All + Property)'
 
       - name: Assert rules all and property scenario
         env:
@@ -446,6 +453,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repo-selection.rules.fork.yml
+          summary-heading: 'Live Test: Selection by Rules (Fork)'
 
       - name: Assert rules fork scenario
         env:
@@ -468,6 +476,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repo-selection.rules.visibility.yml
+          summary-heading: 'Live Test: Selection by Rules (Visibility)'
 
       - name: Assert rules visibility scenario
         env:
@@ -584,6 +593,7 @@ jobs:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
           repositories-file: ./integration-test/configs/repos.failure.yml
+          summary-heading: 'Live Test: Failure Scenarios'
 
       - name: Print failure scenario action outputs
         run: |
