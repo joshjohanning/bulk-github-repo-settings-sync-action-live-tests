@@ -96,7 +96,7 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ secrets.CLIENT_ID }}
+          client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
@@ -151,7 +151,7 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ secrets.CLIENT_ID }}
+          client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
@@ -237,7 +237,7 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ secrets.CLIENT_ID }}
+          client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
@@ -296,7 +296,7 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ secrets.CLIENT_ID }}
+          client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
@@ -503,7 +503,7 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ secrets.CLIENT_ID }}
+          client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
@@ -556,7 +556,7 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ secrets.CLIENT_ID }}
+          client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
