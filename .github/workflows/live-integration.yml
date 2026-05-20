@@ -206,6 +206,7 @@ jobs:
           INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.dry-run.yml
           ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-dry-run.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-dry-run.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-dry-run.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-dry-run.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-dry-run.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-dry-run.outputs['warning-repositories'] }}
@@ -228,6 +229,7 @@ jobs:
           INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.yml
           ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync.outputs['warning-repositories'] }}
@@ -250,6 +252,7 @@ jobs:
           INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.commit-messages.explicit.yml
           ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-commit-messages-explicit.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-commit-messages-explicit.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-commit-messages-explicit.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-commit-messages-explicit.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-commit-messages-explicit.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-commit-messages-explicit.outputs['warning-repositories'] }}
@@ -276,6 +279,7 @@ jobs:
           INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.commit-messages.override.yml
           ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-commit-messages-override.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-commit-messages-override.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-commit-messages-override.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-commit-messages-override.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-commit-messages-override.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-commit-messages-override.outputs['warning-repositories'] }}
@@ -406,6 +410,7 @@ jobs:
           INTEGRATION_API_URL: ${{ github.api_url }}
           ACTION_UPDATED_REPOSITORIES: ${{ steps.selection-list.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.selection-list.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.selection-list.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.selection-list.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.selection-list.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.selection-list.outputs['warning-repositories'] }}
@@ -432,6 +437,7 @@ jobs:
           INTEGRATION_API_URL: ${{ github.api_url }}
           ACTION_UPDATED_REPOSITORIES: ${{ steps.selection-custom-property.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.selection-custom-property.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.selection-custom-property.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.selection-custom-property.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.selection-custom-property.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.selection-custom-property.outputs['warning-repositories'] }}
@@ -458,6 +464,7 @@ jobs:
           INTEGRATION_API_URL: ${{ github.api_url }}
           ACTION_UPDATED_REPOSITORIES: ${{ steps.selection-custom-property-private.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.selection-custom-property-private.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.selection-custom-property-private.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.selection-custom-property-private.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.selection-custom-property-private.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.selection-custom-property-private.outputs['warning-repositories'] }}
@@ -481,6 +488,7 @@ jobs:
           INTEGRATION_API_URL: ${{ github.api_url }}
           ACTION_UPDATED_REPOSITORIES: ${{ steps.selection-rules-repos.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.selection-rules-repos.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.selection-rules-repos.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.selection-rules-repos.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.selection-rules-repos.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.selection-rules-repos.outputs['warning-repositories'] }}
@@ -506,6 +514,7 @@ jobs:
           INTEGRATION_API_URL: ${{ github.api_url }}
           ACTION_UPDATED_REPOSITORIES: ${{ steps.selection-all.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.selection-all.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.selection-all.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.selection-all.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.selection-all.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.selection-all.outputs['warning-repositories'] }}
@@ -529,6 +538,7 @@ jobs:
           INTEGRATION_API_URL: ${{ github.api_url }}
           ACTION_UPDATED_REPOSITORIES: ${{ steps.selection-rules-all-and-property.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.selection-rules-all-and-property.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.selection-rules-all-and-property.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.selection-rules-all-and-property.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.selection-rules-all-and-property.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.selection-rules-all-and-property.outputs['warning-repositories'] }}
@@ -552,6 +562,7 @@ jobs:
           INTEGRATION_API_URL: ${{ github.api_url }}
           ACTION_UPDATED_REPOSITORIES: ${{ steps.selection-rules-fork.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.selection-rules-fork.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.selection-rules-fork.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.selection-rules-fork.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.selection-rules-fork.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.selection-rules-fork.outputs['warning-repositories'] }}
@@ -575,6 +586,7 @@ jobs:
           INTEGRATION_API_URL: ${{ github.api_url }}
           ACTION_UPDATED_REPOSITORIES: ${{ steps.selection-rules-visibility.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.selection-rules-visibility.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.selection-rules-visibility.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.selection-rules-visibility.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.selection-rules-visibility.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.selection-rules-visibility.outputs['warning-repositories'] }}
@@ -688,6 +700,7 @@ jobs:
         run: |
           echo "updated-repositories=${{ steps.live-sync-failures.outputs.updated-repositories }}"
           echo "changed-repositories=${{ steps.live-sync-failures.outputs.changed-repositories }}"
+          echo "pending-repositories=${{ steps.live-sync-failures.outputs.pending-repositories }}"
           echo "unchanged-repositories=${{ steps.live-sync-failures.outputs.unchanged-repositories }}"
           echo "failed-repositories=${{ steps.live-sync-failures.outputs.failed-repositories }}"
           echo "warning-repositories=${{ steps.live-sync-failures.outputs.warning-repositories }}"
@@ -702,6 +715,7 @@ jobs:
           INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.failure.yml
           ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-failures.outputs['updated-repositories'] }}
           ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-failures.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-failures.outputs['pending-repositories'] }}
           ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-failures.outputs['unchanged-repositories'] }}
           ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-failures.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-failures.outputs['warning-repositories'] }}

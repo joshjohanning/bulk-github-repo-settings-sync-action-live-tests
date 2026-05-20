@@ -35,6 +35,7 @@ async function main() {
     assert(repos.length === 7, 'failure config should include exactly seven repositories');
     assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 7, 'updated-repositories should equal 7');
     assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 0, 'changed-repositories should equal 0');
+    assert(parseIntegerOutput('ACTION_PENDING_REPOSITORIES') === 0, 'pending-repositories should equal 0');
     assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 7, 'unchanged-repositories should equal 7');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
     assert(parseIntegerOutput('ACTION_WARNING_REPOSITORIES') === 6, 'warning-repositories should equal 6');

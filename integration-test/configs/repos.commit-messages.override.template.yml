@@ -4,6 +4,7 @@ assertions:
   counts:
     updated-repositories: 2
     changed-repositories: 2
+    pending-repositories: 0
     unchanged-repositories: 0
     failed-repositories: 0
     warning-repositories: 0

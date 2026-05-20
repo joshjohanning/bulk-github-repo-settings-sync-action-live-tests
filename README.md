@@ -2,7 +2,7 @@
 
 Live integration tests for [`joshjohanning/bulk-github-repo-settings-sync-action`](https://github.com/joshjohanning/bulk-github-repo-settings-sync-action).
 
-These tests run against real repositories in a dedicated disposable test organization, verifying both action outputs and resulting GitHub state.
+These tests run against real repositories in a dedicated disposable test organization, verifying both action outputs (including `pending-repositories`) and resulting GitHub state.
 
 > Adapted from Wuodan's live test harness ([PR #123](https://github.com/joshjohanning/bulk-github-repo-settings-sync-action/pull/123), [PR #124](https://github.com/joshjohanning/bulk-github-repo-settings-sync-action/pull/124)).
 

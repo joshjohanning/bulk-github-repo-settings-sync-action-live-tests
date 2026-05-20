@@ -54,6 +54,7 @@ async function main() {
     assert(repos.length === 3, 'dry-run config should include exactly three repositories');
     assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 3, 'updated-repositories should equal 3');
     assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 3, 'changed-repositories should equal 3');
+    assert(parseIntegerOutput('ACTION_PENDING_REPOSITORIES') === 0, 'pending-repositories should equal 0');
     assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 0, 'unchanged-repositories should equal 0');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
     assert(parseIntegerOutput('ACTION_WARNING_REPOSITORIES') === 0, 'warning-repositories should equal 0');
