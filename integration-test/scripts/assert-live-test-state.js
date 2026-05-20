@@ -669,8 +669,8 @@ async function main() {
     const { repos } = readIntegrationConfig();
     const results = parseResultsOutput();
 
-    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 36, 'updated-repositories should equal 35');
-    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 33, 'changed-repositories should equal 33');
+    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 36, 'updated-repositories should equal 36');
+    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 34, 'changed-repositories should equal 34');
     assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 2, 'unchanged-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
     assert(parseIntegerOutput('ACTION_WARNING_REPOSITORIES') === 1, 'warning-repositories should equal 1');
