@@ -70,11 +70,26 @@ function assertPackageJsonChanges(repoFullName, changes, expectedChanges) {
   }
 }
 
-function assertSubResult(repoFullName, result, kind, status = 'changed') {
-  assert(
-    result.subResults?.some(subResult => subResult.kind === kind && subResult.status === status),
-    `${repoFullName} should include a ${status} ${kind} sub-result`
-  );
+function findSubResult(result, kind, status = 'changed') {
+  return result.subResults?.find(subResult => subResult.kind === kind && subResult.status === status) || null;
+}
+
+function formatSubResultSummaryDetail(subResult) {
+  if (subResult.kind.startsWith('ruleset-')) {
+    return `rulesets: ${subResult.message}`;
+  }
+  return subResult.message;
+}
+
+function assertSubResult(repoFullName, result, kind, status = 'changed', expectedFields = {}) {
+  const subResult = findSubResult(result, kind, status);
+  assert(subResult, `${repoFullName} should include a ${status} ${kind} sub-result`);
+
+  for (const [field, expectedValue] of Object.entries(expectedFields)) {
+    assert(subResult[field] === expectedValue, `${repoFullName} ${kind} sub-result should include ${field}=${expectedValue}`);
+  }
+
+  return subResult;
 }
 
 async function assertSinglePrFileSyncRepo(octokit, repoFullName, result, options) {
@@ -312,8 +327,20 @@ async function assertRulesetsRepo(octokit, repoFullName, result) {
     ),
     `${repoFullName} should report the obsolete ruleset as deleted`
   );
-  assertSubResult(repoFullName, result, 'ruleset-create');
-  assertSubResult(repoFullName, result, 'ruleset-delete');
+  const createSubResult = assertSubResult(repoFullName, result, 'ruleset-create', 'changed', {
+    rulesetName: 'Integration Branch Protection'
+  });
+  const deleteSubResult = assertSubResult(repoFullName, result, 'ruleset-delete', 'changed', {
+    rulesetName: 'Obsolete Integration Ruleset'
+  });
+  assert(
+    formatSubResultSummaryDetail(createSubResult).startsWith('rulesets: '),
+    `${repoFullName} ruleset-create summary detail should include the rulesets: prefix`
+  );
+  assert(
+    formatSubResultSummaryDetail(deleteSubResult).startsWith('rulesets: '),
+    `${repoFullName} ruleset-delete summary detail should include the rulesets: prefix`
+  );
 }
 
 async function assertRulesetsUpdateRepo(octokit, repoFullName, result) {
@@ -342,8 +369,20 @@ async function assertRulesetsUpdateRepo(octokit, repoFullName, result) {
     ),
     `${repoFullName} should report the obsolete ruleset as deleted`
   );
-  assertSubResult(repoFullName, result, 'ruleset-update');
-  assertSubResult(repoFullName, result, 'ruleset-delete');
+  const updateSubResult = assertSubResult(repoFullName, result, 'ruleset-update', 'changed', {
+    rulesetName: 'Integration Branch Protection'
+  });
+  const deleteSubResult = assertSubResult(repoFullName, result, 'ruleset-delete', 'changed', {
+    rulesetName: 'Obsolete Integration Ruleset'
+  });
+  assert(
+    formatSubResultSummaryDetail(updateSubResult).startsWith('rulesets: '),
+    `${repoFullName} ruleset-update summary detail should include the rulesets: prefix`
+  );
+  assert(
+    formatSubResultSummaryDetail(deleteSubResult).startsWith('rulesets: '),
+    `${repoFullName} ruleset-delete summary detail should include the rulesets: prefix`
+  );
 }
 
 async function assertPullRequestTemplateRepo(octokit, repoFullName, result) {
