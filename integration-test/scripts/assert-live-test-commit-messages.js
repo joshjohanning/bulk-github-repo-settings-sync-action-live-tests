@@ -96,6 +96,7 @@ async function collectActual(octokit, repos) {
     counts: {
       'updated-repositories': parseIntegerOutput('ACTION_UPDATED_REPOSITORIES'),
       'changed-repositories': parseIntegerOutput('ACTION_CHANGED_REPOSITORIES'),
+      'pending-repositories': parseIntegerOutput('ACTION_PENDING_REPOSITORIES'),
       'unchanged-repositories': parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES'),
       'failed-repositories': parseIntegerOutput('ACTION_FAILED_REPOSITORIES'),
       'warning-repositories': parseIntegerOutput('ACTION_WARNING_REPOSITORIES')

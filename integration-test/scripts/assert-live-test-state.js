@@ -45,6 +45,10 @@ function assertPrMetadata(repoFullName, syncResult, pull) {
   assert(syncResult?.prUrl === pull.html_url, `${repoFullName} should report PR URL ${pull.html_url}`);
 }
 
+function getPrSubResultStatus(expectedStatus) {
+  return expectedStatus === 'pr-up-to-date' ? 'pending' : 'changed';
+}
+
 function assertSortedStringArray(actual, expected, message) {
   assert(
     JSON.stringify(sortStrings(actual || [])) === JSON.stringify(sortStrings(expected)),
@@ -121,7 +125,7 @@ async function assertSinglePrFileSyncRepo(octokit, repoFullName, result, options
     result[statusKey]?.[statusProperty] === expectedStatus,
     `${repoFullName} ${statusKey}.${statusProperty} should report status ${expectedStatus}`
   );
-  assertSubResult(repoFullName, result, expectedSubResultKind);
+  assertSubResult(repoFullName, result, expectedSubResultKind, getPrSubResultStatus(expectedStatus));
 
   if (expectedStatus === 'created') {
     assertSortedStringArray(
@@ -604,7 +608,7 @@ async function assertPackageJsonPrRepo(octokit, repoFullName, result, expectatio
     result.packageJsonSync?.packageJson === expectations.status,
     `${repoFullName} package.json sync should report ${expectations.status}`
   );
-  assertSubResult(repoFullName, result, 'package-json-sync');
+  assertSubResult(repoFullName, result, 'package-json-sync', getPrSubResultStatus(expectations.status));
 
   if (expectations.changes) {
     assertPackageJsonChanges(repoFullName, result.packageJsonSync?.changes, expectations.changes);
@@ -709,7 +713,8 @@ async function main() {
     const results = parseResultsOutput();
 
     assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 36, 'updated-repositories should equal 36');
-    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 34, 'changed-repositories should equal 34');
+    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 32, 'changed-repositories should equal 32');
+    assert(parseIntegerOutput('ACTION_PENDING_REPOSITORIES') === 2, 'pending-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 2, 'unchanged-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
     assert(parseIntegerOutput('ACTION_WARNING_REPOSITORIES') === 1, 'warning-repositories should equal 1');
