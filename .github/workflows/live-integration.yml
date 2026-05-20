@@ -115,6 +115,8 @@ jobs:
         run: |
           cp integration-test/configs/repos.prepare.template.yml integration-test/configs/repos.prepare.yml
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.prepare.yml
+          cp integration-test/configs/repos.commit-messages.prepare.template.yml integration-test/configs/repos.commit-messages.prepare.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.commit-messages.prepare.yml
           cp integration-test/configs/repos.template.yml integration-test/configs/repos.yml
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.yml
           cp integration-test/configs/repos.dry-run.template.yml integration-test/configs/repos.dry-run.yml
@@ -125,6 +127,13 @@ jobs:
           INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
           INTEGRATION_API_URL: ${{ github.api_url }}
           INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.prepare.yml
+        run: node integration-test/scripts/prepare-live-test-repositories.js
+
+      - name: Prepare commit message test repositories
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.commit-messages.prepare.yml
         run: node integration-test/scripts/prepare-live-test-repositories.js
 
   test-main:
@@ -175,6 +184,10 @@ jobs:
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.yml
           cp integration-test/configs/repos.dry-run.template.yml integration-test/configs/repos.dry-run.yml
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.dry-run.yml
+          cp integration-test/configs/repos.commit-messages.explicit.template.yml integration-test/configs/repos.commit-messages.explicit.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.commit-messages.explicit.yml
+          cp integration-test/configs/repos.commit-messages.override.template.yml integration-test/configs/repos.commit-messages.override.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.commit-messages.override.yml
 
       - name: Run dry-run scenario against live test repositories
         id: live-sync-dry-run
@@ -220,6 +233,54 @@ jobs:
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync.outputs['warning-repositories'] }}
           ACTION_RESULTS: ${{ steps.live-sync.outputs['results'] }}
         run: node integration-test/scripts/assert-live-test-state.js
+
+      - name: Run commit message explicit and message-only scenarios
+        id: live-sync-commit-messages-explicit
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.commit-messages.explicit.yml
+          summary-heading: Commit message explicit update
+
+      - name: Assert commit message explicit and message-only scenarios
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.commit-messages.explicit.yml
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-commit-messages-explicit.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-commit-messages-explicit.outputs['changed-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-commit-messages-explicit.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-commit-messages-explicit.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-commit-messages-explicit.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-commit-messages-explicit.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-commit-messages.js
+
+      - name: Run commit message global and override scenarios
+        id: live-sync-commit-messages-override
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.commit-messages.override.yml
+          squash-merge-commit-title: PR_TITLE
+          squash-merge-commit-message: BLANK
+          merge-commit-title: PR_TITLE
+          merge-commit-message: PR_BODY
+          summary-heading: Commit message override update
+
+      - name: Assert commit message global and override scenarios
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.commit-messages.override.yml
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-commit-messages-override.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-commit-messages-override.outputs['changed-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-commit-messages-override.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-commit-messages-override.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-commit-messages-override.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-commit-messages-override.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-commit-messages.js
 
   prepare-selection:
     if: ${{ !cancelled() && (inputs.suite == 'all' || inputs.suite == 'selection') }}

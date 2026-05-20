@@ -1,0 +1,67 @@
+assertions:
+  repositoryCount: 2
+  resultCount: 2
+  counts:
+    updated-repositories: 2
+    changed-repositories: 2
+    unchanged-repositories: 0
+    failed-repositories: 0
+    warning-repositories: 0
+  repos:
+    it-commit-message-global-a:
+      repository:
+        allow_squash_merge: true
+        allow_merge_commit: true
+        squash_merge_commit_title: PR_TITLE
+        squash_merge_commit_message: BLANK
+        merge_commit_title: PR_TITLE
+        merge_commit_message: PR_BODY
+      result:
+        success: true
+        hasWarnings: false
+        subResults:
+          - kind: settings
+            status: changed
+        changes:
+          squash_merge_commit_title:
+            from: COMMIT_OR_PR_TITLE
+            to: PR_TITLE
+          squash_merge_commit_message:
+            from: COMMIT_MESSAGES
+            to: BLANK
+          merge_commit_title:
+            from: MERGE_MESSAGE
+            to: PR_TITLE
+          merge_commit_message:
+            from: PR_TITLE
+            to: PR_BODY
+    it-commit-message-override-a:
+      repository:
+        allow_squash_merge: true
+        allow_merge_commit: true
+        squash_merge_commit_title: COMMIT_OR_PR_TITLE
+        squash_merge_commit_message: COMMIT_MESSAGES
+        merge_commit_title: PR_TITLE
+        merge_commit_message: BLANK
+      result:
+        success: true
+        hasWarnings: false
+        subResults:
+          - kind: settings
+            status: changed
+        changes:
+          merge_commit_title:
+            from: MERGE_MESSAGE
+            to: PR_TITLE
+          merge_commit_message:
+            from: PR_TITLE
+            to: BLANK
+
+repos:
+  - repo: __LIVE_TEST_ORG__/it-commit-message-global-a
+
+  - repo: __LIVE_TEST_ORG__/it-commit-message-override-a
+    squash-merge-commit-title: COMMIT_OR_PR_TITLE
+    squash-merge-commit-message: COMMIT_MESSAGES
+    merge-commit-title: PR_TITLE
+    merge-commit-message: BLANK

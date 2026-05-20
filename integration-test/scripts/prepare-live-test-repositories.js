@@ -118,6 +118,19 @@ async function resetSettingsRepo(octokit, repoFullName) {
   });
 }
 
+async function resetCommitMessageRepo(octokit, repoFullName) {
+  info(`Resetting commit message baseline for ${repoFullName}`);
+  await ensureRepositoryExists(octokit, repoFullName);
+  await updateRepositorySettings(octokit, repoFullName, {
+    allow_squash_merge: true,
+    squash_merge_commit_title: 'COMMIT_OR_PR_TITLE',
+    squash_merge_commit_message: 'COMMIT_MESSAGES',
+    allow_merge_commit: true,
+    merge_commit_title: 'MERGE_MESSAGE',
+    merge_commit_message: 'PR_TITLE'
+  });
+}
+
 async function resetTopicsRepo(octokit, repoFullName) {
   info(`Resetting topics baseline for ${repoFullName}`);
   await ensureRepositoryExists(octokit, repoFullName);
@@ -502,6 +515,13 @@ async function resetRepo(octokit, repoConfig) {
     await resetRebaseMergeRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-update-branch-a')) {
     await resetUpdateBranchRepo(octokit, repoFullName);
+  } else if (
+    repoFullName.endsWith('/it-commit-message-explicit-a') ||
+    repoFullName.endsWith('/it-commit-message-message-only-a') ||
+    repoFullName.endsWith('/it-commit-message-global-a') ||
+    repoFullName.endsWith('/it-commit-message-override-a')
+  ) {
+    await resetCommitMessageRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-immutable-releases-a')) {
     await resetImmutableReleasesRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-code-scanning-a')) {

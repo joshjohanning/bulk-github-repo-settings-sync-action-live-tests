@@ -1,0 +1,5 @@
+repos:
+  - repo: __LIVE_TEST_ORG__/it-commit-message-explicit-a
+  - repo: __LIVE_TEST_ORG__/it-commit-message-message-only-a
+  - repo: __LIVE_TEST_ORG__/it-commit-message-global-a
+  - repo: __LIVE_TEST_ORG__/it-commit-message-override-a
