@@ -188,6 +188,8 @@ jobs:
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.commit-messages.explicit.yml
           cp integration-test/configs/repos.commit-messages.override.template.yml integration-test/configs/repos.commit-messages.override.yml
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.commit-messages.override.yml
+          cp integration-test/configs/repos.rulesets-unchanged.template.yml integration-test/configs/repos.rulesets-unchanged.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.rulesets-unchanged.yml
 
       - name: Prepare file-sync mode fixtures
         run: |
@@ -242,6 +244,27 @@ jobs:
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync.outputs['warning-repositories'] }}
           ACTION_RESULTS: ${{ steps.live-sync.outputs['results'] }}
         run: node integration-test/scripts/assert-live-test-state.js
+
+      - name: Re-run unchanged ruleset scenario
+        id: live-sync-rulesets-unchanged
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.rulesets-unchanged.yml
+          summary-heading: Unchanged ruleset update
+
+      - name: Assert unchanged ruleset scenario
+        env:
+          INTEGRATION_REPOSITORY: ${{ vars.LIVE_TEST_ORG }}/it-rulesets-update-a
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-rulesets-unchanged.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-rulesets-unchanged.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-rulesets-unchanged.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-rulesets-unchanged.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-rulesets-unchanged.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-rulesets-unchanged.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-rulesets-unchanged.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-rulesets-unchanged.js
 
       - name: Run direct file sync scenario
         id: live-sync-direct-file
