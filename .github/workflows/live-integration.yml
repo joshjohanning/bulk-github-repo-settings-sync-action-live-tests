@@ -189,6 +189,13 @@ jobs:
           cp integration-test/configs/repos.commit-messages.override.template.yml integration-test/configs/repos.commit-messages.override.yml
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.commit-messages.override.yml
 
+      - name: Prepare file-sync mode fixtures
+        run: |
+          chmod +x integration-test/sources/modes/script.sh
+          chmod +x integration-test/sources/managed/ignored/keep.md
+          chmod +x integration-test/sources/managed/nested/tool.sh
+          ln -sfn script.sh integration-test/sources/modes/script-link
+
       - name: Run dry-run scenario against live test repositories
         id: live-sync-dry-run
         uses: ./action/
@@ -235,6 +242,31 @@ jobs:
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync.outputs['warning-repositories'] }}
           ACTION_RESULTS: ${{ steps.live-sync.outputs['results'] }}
         run: node integration-test/scripts/assert-live-test-state.js
+
+      - name: Run direct file sync scenario
+        id: live-sync-direct-file
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories: ${{ vars.LIVE_TEST_ORG }}/it-file-sync-direct-a
+          file-sync-source: ./integration-test/sources/renovate.json
+          file-sync-target: renovate.json
+          summary-heading: Direct file sync update
+
+      - name: Assert direct file sync scenario
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORY: ${{ vars.LIVE_TEST_ORG }}/it-file-sync-direct-a
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-direct-file.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-direct-file-sync.js
 
       - name: Run commit message explicit and message-only scenarios
         id: live-sync-commit-messages-explicit

@@ -61,6 +61,23 @@ repos:
       - ./integration-test/sources/workflow-ci.yml
       - ./integration-test/sources/workflow-release.yml
 
+  - repo: __LIVE_TEST_ORG__/it-file-sync-a
+    file-sync:
+      - name: Renovate configuration
+        source: ./integration-test/sources/renovate.json
+        target: renovate.json
+        group: renovate
+      - name: Managed repository files
+        source: ./integration-test/sources/managed
+        target: .github/managed
+        delete: true
+        ignore:
+          - ignored/**
+          - '!ignored/reincluded.md'
+      - name: Executable and symlink fixtures
+        source: ./integration-test/sources/modes
+        target: bin
+
   - repo: __LIVE_TEST_ORG__/it-autolinks-a
     autolinks-file: ./integration-test/sources/autolinks.json
 
