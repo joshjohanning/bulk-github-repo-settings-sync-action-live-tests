@@ -43,11 +43,11 @@ repos:
     gitignore: ./integration-test/sources/gitignore
 
   - repo: __LIVE_TEST_ORG__/it-rulesets-a
-    rulesets-file: ./integration-test/sources/ruleset.json
+    rulesets-file: ./integration-test/sources/ruleset.explicit-exclude.json
     delete-unmanaged-rulesets: true
 
   - repo: __LIVE_TEST_ORG__/it-rulesets-update-a
-    rulesets-file: ./integration-test/sources/ruleset.json
+    rulesets-file: ./integration-test/sources/ruleset.explicit-exclude.json
     delete-unmanaged-rulesets: true
 
   - repo: __LIVE_TEST_ORG__/it-pull-request-template-a
