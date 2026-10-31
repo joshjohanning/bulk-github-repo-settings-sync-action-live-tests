@@ -17,6 +17,8 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-pull-request-template-a
   - repo: __LIVE_TEST_ORG__/it-workflow-single-a
   - repo: __LIVE_TEST_ORG__/it-workflows-a
+  - repo: __LIVE_TEST_ORG__/it-file-sync-a
+  - repo: __LIVE_TEST_ORG__/it-file-sync-direct-a
   - repo: __LIVE_TEST_ORG__/it-autolinks-a
   - repo: __LIVE_TEST_ORG__/it-copilot-a
   - repo: __LIVE_TEST_ORG__/it-package-json-a

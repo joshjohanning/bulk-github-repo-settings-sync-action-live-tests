@@ -56,6 +56,21 @@ function assertSortedStringArray(actual, expected, message) {
   );
 }
 
+async function getGitTreeEntry(octokit, repoFullName, targetPath, ref) {
+  const [owner, repo] = repoFullName.split('/');
+  const { data: branch } = await octokit.rest.git.getRef({ owner, repo, ref: `heads/${ref}` });
+  const { data: commit } = await octokit.rest.git.getCommit({ owner, repo, commit_sha: branch.object.sha });
+  let treeSha = commit.tree.sha;
+
+  for (const [index, part] of targetPath.split('/').entries()) {
+    const { data: tree } = await octokit.rest.git.getTree({ owner, repo, tree_sha: treeSha });
+    const entry = tree.tree.find(item => item.path === part);
+    assert(entry, `${repoFullName} should contain ${targetPath} on ${ref}`);
+    if (index === targetPath.split('/').length - 1) return entry;
+    treeSha = entry.sha;
+  }
+}
+
 function assertPackageJsonChanges(repoFullName, changes, expectedChanges) {
   assert(Array.isArray(changes), `${repoFullName} package.json changes should be an array`);
   assert(changes.length === expectedChanges.length, `${repoFullName} package.json changes should have expected length`);
@@ -463,6 +478,82 @@ async function assertWorkflowFilesRepo(octokit, repoFullName, result) {
   assertSubResult(repoFullName, result, 'workflow-files-sync');
 }
 
+async function assertFileSyncRepo(octokit, repoFullName, result) {
+  const branchName = 'file-sync';
+  const renovateBranchName = 'file-sync-renovate';
+  const pulls = await listOpenPullRequestsForBranch(octokit, repoFullName, branchName);
+  const renovatePulls = await listOpenPullRequestsForBranch(octokit, repoFullName, renovateBranchName);
+  assert(pulls.length === 1, `${repoFullName} should have exactly one open generic file-sync PR`);
+  assert(renovatePulls.length === 1, `${repoFullName} should have exactly one open Renovate file-sync PR`);
+  assert(pulls[0].title === 'chore: sync files', `${repoFullName} generic file-sync PR should retain its fallback title`);
+  assert(
+    renovatePulls[0].title === 'chore: sync Renovate configuration',
+    `${repoFullName} Renovate file-sync PR should use the mapping name as its title`
+  );
+
+  for (const [targetPath, fixturePath] of [
+    ['renovate.json', 'integration-test/sources/renovate.json'],
+    ['.github/managed/managed.md', 'integration-test/sources/managed/managed.md'],
+    ['.github/managed/nested/tool.sh', 'integration-test/sources/managed/nested/tool.sh'],
+    ['bin/script.sh', 'integration-test/sources/modes/script.sh']
+  ]) {
+    assert(
+      (await getFileContent(octokit, repoFullName, targetPath, targetPath === 'renovate.json' ? renovateBranchName : branchName)) ===
+        readFixture(fixturePath),
+      `${repoFullName} ${targetPath} should match its file-sync fixture`
+    );
+  }
+
+  assert(
+    (await getGitTreeEntry(octokit, repoFullName, 'bin/script.sh', branchName)).mode === '100755',
+    `${repoFullName} executable source mode should be retained`
+  );
+  assert(
+    (await getGitTreeEntry(octokit, repoFullName, '.github/managed/nested/tool.sh', branchName)).mode === '100755',
+    `${repoFullName} recursive executable source mode should be retained`
+  );
+  assert(
+    (await getGitTreeEntry(octokit, repoFullName, 'bin/script-link', branchName)).mode === '120000',
+    `${repoFullName} symbolic links should be retained`
+  );
+  assert(
+    (await getFileContent(octokit, repoFullName, '.github/managed/ignored/keep.md', branchName)) ===
+      'This ignored file should be preserved.\n',
+    `${repoFullName} ignored content should not be synced`
+  );
+  assert(
+    (await getGitTreeEntry(octokit, repoFullName, '.github/managed/ignored/keep.md', branchName)).mode === '100644',
+    `${repoFullName} ignored mode should not be synced`
+  );
+  assert(
+    (await getFileContent(octokit, repoFullName, '.github/managed/ignored/reincluded.md', branchName)) ===
+      readFixture('integration-test/sources/managed/ignored/reincluded.md'),
+    `${repoFullName} negated ignore rule should re-include a file`
+  );
+
+  for (const targetPath of ['.github/managed/stale.md', '.github/managed/nested/stale.md']) {
+    let deleted = false;
+    try {
+      await getFileContent(octokit, repoFullName, targetPath, branchName);
+    } catch (error) {
+      deleted = error.status === 404;
+    }
+    assert(deleted, `${repoFullName} ${targetPath} should be deleted from the file-sync PR`);
+  }
+
+  const sync = result.fileSync?.find(item => item.prNumber === pulls[0].number);
+  const renovateSync = result.fileSync?.find(item => item.prNumber === renovatePulls[0].number);
+  assert(result.success === true, `${repoFullName} result should be successful`);
+  assert(result.hasWarnings === false, `${repoFullName} should not have warnings`);
+  assert(sync?.success === true, `${repoFullName} file sync should be successful`);
+  assert(sync?.fileSync === 'created', `${repoFullName} file sync should create a PR`);
+  assert(renovateSync?.success === true, `${repoFullName} Renovate file sync should be successful`);
+  assert(renovateSync?.fileSync === 'created', `${repoFullName} Renovate file sync should create a PR`);
+  assertPrMetadata(repoFullName, sync, pulls[0]);
+  assertPrMetadata(repoFullName, renovateSync, renovatePulls[0]);
+  assertSubResult(repoFullName, result, 'file-sync');
+}
+
 async function assertWorkflowPrRepo(octokit, repoFullName, result, expectedStatus) {
   const pulls = await listOpenPullRequestsForBranch(octokit, repoFullName, 'workflow-files-sync');
   assert(pulls.length === 1, `${repoFullName} should have exactly one open workflow files PR`);
@@ -712,8 +803,8 @@ async function main() {
     const { repos } = readIntegrationConfig();
     const results = parseResultsOutput();
 
-    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 36, 'updated-repositories should equal 36');
-    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 32, 'changed-repositories should equal 32');
+    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 37, 'updated-repositories should equal 37');
+    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 33, 'changed-repositories should equal 33');
     assert(parseIntegerOutput('ACTION_PENDING_REPOSITORIES') === 2, 'pending-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 2, 'unchanged-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
@@ -762,6 +853,8 @@ async function main() {
         await assertWorkflowSingleRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-workflows-a')) {
         await assertWorkflowFilesRepo(octokit, repoConfig.repo, result);
+      } else if (repoConfig.repo.endsWith('/it-file-sync-a')) {
+        await assertFileSyncRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-autolinks-a')) {
         await assertAutolinksRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-copilot-a')) {

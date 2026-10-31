@@ -4,8 +4,7 @@
   "enforcement": "active",
   "conditions": {
     "ref_name": {
-      "include": ["~DEFAULT_BRANCH"],
-      "exclude": []
+      "include": ["~DEFAULT_BRANCH"]
     }
   },
   "rules": [

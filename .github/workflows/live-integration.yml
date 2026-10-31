@@ -90,7 +90,7 @@ jobs:
 
     steps:
       - name: Checkout live tests
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Generate integration token
         id: auth
@@ -101,7 +101,7 @@ jobs:
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'npm'
@@ -147,10 +147,10 @@ jobs:
 
     steps:
       - name: Checkout live tests
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Checkout action under test
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: ${{ needs.resolve-ref.outputs.repository }}
           ref: ${{ needs.resolve-ref.outputs.ref }}
@@ -165,7 +165,7 @@ jobs:
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'npm'
@@ -190,6 +190,13 @@ jobs:
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.commit-messages.override.yml
           cp integration-test/configs/repos.rulesets-unchanged.template.yml integration-test/configs/repos.rulesets-unchanged.yml
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.rulesets-unchanged.yml
+
+      - name: Prepare file-sync mode fixtures
+        run: |
+          chmod +x integration-test/sources/modes/script.sh
+          chmod +x integration-test/sources/managed/ignored/keep.md
+          chmod +x integration-test/sources/managed/nested/tool.sh
+          ln -sfn script.sh integration-test/sources/modes/script-link
 
       - name: Run dry-run scenario against live test repositories
         id: live-sync-dry-run
@@ -259,6 +266,31 @@ jobs:
           ACTION_RESULTS: ${{ steps.live-sync-rulesets-unchanged.outputs['results'] }}
         run: node integration-test/scripts/assert-live-test-rulesets-unchanged.js
 
+      - name: Run direct file sync scenario
+        id: live-sync-direct-file
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories: ${{ vars.LIVE_TEST_ORG }}/it-file-sync-direct-a
+          file-sync-source: ./integration-test/sources/renovate.json
+          file-sync-target: renovate.json
+          summary-heading: Direct file sync update
+
+      - name: Assert direct file sync scenario
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORY: ${{ vars.LIVE_TEST_ORG }}/it-file-sync-direct-a
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-direct-file.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-direct-file.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-direct-file-sync.js
+
       - name: Run commit message explicit and message-only scenarios
         id: live-sync-commit-messages-explicit
         uses: ./action/
@@ -321,7 +353,7 @@ jobs:
 
     steps:
       - name: Checkout live tests
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Generate integration token
         id: auth
@@ -332,7 +364,7 @@ jobs:
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'npm'
@@ -373,10 +405,10 @@ jobs:
 
     steps:
       - name: Checkout live tests
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Checkout action under test
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: ${{ needs.resolve-ref.outputs.repository }}
           ref: ${{ needs.resolve-ref.outputs.ref }}
@@ -391,7 +423,7 @@ jobs:
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'npm'
@@ -628,7 +660,7 @@ jobs:
 
     steps:
       - name: Checkout live tests
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Generate integration token
         id: auth
@@ -639,7 +671,7 @@ jobs:
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'npm'
@@ -674,10 +706,10 @@ jobs:
 
     steps:
       - name: Checkout live tests
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Checkout action under test
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: ${{ needs.resolve-ref.outputs.repository }}
           ref: ${{ needs.resolve-ref.outputs.ref }}
@@ -692,7 +724,7 @@ jobs:
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'npm'

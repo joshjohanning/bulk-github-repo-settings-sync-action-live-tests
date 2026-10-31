@@ -475,6 +475,71 @@ async function resetWorkflowPrRepo(octokit, repoFullName, mode) {
   });
 }
 
+async function resetFileSyncRepo(octokit, repoFullName) {
+  info(`Resetting generic file sync baseline for ${repoFullName}`);
+  const defaultBranch = await resetPrSyncRepo(octokit, repoFullName, 'file-sync', [
+    'renovate.json',
+    '.github/managed/managed.md',
+    '.github/managed/stale.md',
+    '.github/managed/nested/tool.sh',
+    '.github/managed/nested/stale.md',
+    '.github/managed/ignored/keep.md',
+    '.github/managed/ignored/reincluded.md',
+    'bin/script.sh',
+    'bin/script-link'
+  ]);
+  await resetPrSyncRepo(octokit, repoFullName, 'file-sync-renovate');
+
+  await putFileContent(
+    octokit,
+    repoFullName,
+    'renovate.json',
+    '{"extends":["config:base"]}\n',
+    defaultBranch,
+    'chore: reset renovate baseline for integration'
+  );
+  // Content intentionally already matches the executable fixture. The
+  // Contents API creates a regular file, so file-sync must make an
+  // attribute-only Git mode update from 100644 to 100755.
+  await putFileContent(
+    octokit,
+    repoFullName,
+    'bin/script.sh',
+    readFixture('integration-test/sources/modes/script.sh'),
+    defaultBranch,
+    'chore: reset script mode baseline for integration'
+  );
+  await putFileContent(
+    octokit,
+    repoFullName,
+    '.github/managed/stale.md',
+    'This file should be deleted by the generic sync.\n',
+    defaultBranch,
+    'chore: reset stale managed file for integration'
+  );
+  await putFileContent(
+    octokit,
+    repoFullName,
+    '.github/managed/nested/stale.md',
+    'This nested file should be deleted by the generic sync.\n',
+    defaultBranch,
+    'chore: reset nested stale managed file for integration'
+  );
+  await putFileContent(
+    octokit,
+    repoFullName,
+    '.github/managed/ignored/keep.md',
+    'This ignored file should be preserved.\n',
+    defaultBranch,
+    'chore: reset ignored managed file for integration'
+  );
+}
+
+async function resetDirectFileSyncRepo(octokit, repoFullName) {
+  info(`Resetting direct file sync baseline for ${repoFullName}`);
+  await resetPrSyncRepo(octokit, repoFullName, 'file-sync', ['renovate.json']);
+}
+
 async function resetPackageJsonPrRepo(octokit, repoFullName, mode) {
   info(`Resetting package.json PR baseline for ${repoFullName}`);
   const defaultBranch = await resetPrSyncRepo(octokit, repoFullName, 'package-json-sync');
@@ -550,6 +615,10 @@ async function resetRepo(octokit, repoConfig) {
     await resetWorkflowSingleRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-workflows-a')) {
     await resetWorkflowFilesRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-file-sync-a')) {
+    await resetFileSyncRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-file-sync-direct-a')) {
+    await resetDirectFileSyncRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-autolinks-a')) {
     await resetAutolinksRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-copilot-a')) {
