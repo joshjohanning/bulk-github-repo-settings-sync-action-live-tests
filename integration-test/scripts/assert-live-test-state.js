@@ -3,10 +3,13 @@ import * as fs from 'fs';
 import {
   assert,
   createOctokit,
+  getActionsPermissions,
   getFileContent,
+  getEnvironment,
   getCodeScanningDefaultSetupState,
   getDependabotAlertsEnabled,
   getDependabotSecurityUpdatesEnabled,
+  getWorkflowPermissions,
   getImmutableReleasesEnabled,
   getPrivateVulnerabilityReportingEnabled,
   getRulesetByName,
@@ -14,6 +17,7 @@ import {
   getTopics,
   info,
   listAutolinks,
+  listEnvironmentDeploymentBranchPolicies,
   listOpenPullRequestsForBranch,
   readIntegrationConfig
 } from './helpers.js';
@@ -197,6 +201,73 @@ async function assertUpdateBranchRepo(octokit, repoFullName, result) {
   assert(repository.allow_update_branch === true, `${repoFullName} should have update branch enabled`);
   assertChangedSetting(result, repoFullName, 'allow_update_branch');
   assertSubResult(repoFullName, result, 'settings');
+}
+
+async function assertProjectsRepo(octokit, repoFullName, result, expected) {
+  const repository = await getRepository(octokit, repoFullName);
+  assert(repository.has_projects === expected, `${repoFullName} projects should be ${expected}`);
+  assertChangedSetting(result, repoFullName, 'projects');
+  assertSubResult(repoFullName, result, 'settings');
+}
+
+async function assertWorkflowPermissionsRepo(octokit, repoFullName, result, expected) {
+  const permissions = await getWorkflowPermissions(octokit, repoFullName);
+  assert(
+    permissions.default_workflow_permissions === expected.default_workflow_permissions,
+    `${repoFullName} default workflow permissions should be ${expected.default_workflow_permissions}`
+  );
+  assert(
+    permissions.can_approve_pull_request_reviews === expected.can_approve_pull_request_reviews,
+    `${repoFullName} can_approve_pull_request_reviews should be ${expected.can_approve_pull_request_reviews}`
+  );
+  assert(result.workflowPermissionsSync?.success === true, `${repoFullName} workflow permissions sync should succeed`);
+  assert(
+    result.workflowPermissionsSync?.workflowPermissions === 'updated',
+    `${repoFullName} workflow permissions should report updated`
+  );
+  assertSubResult(repoFullName, result, 'workflow-permissions-sync');
+}
+
+async function assertActionsShaPinningRepo(octokit, repoFullName, result, expected) {
+  const permissions = await getActionsPermissions(octokit, repoFullName);
+  assert(
+    permissions.sha_pinning_required === expected,
+    `${repoFullName} SHA pinning required should be ${expected}`
+  );
+  assert(result.actionsShaPinningSync?.success === true, `${repoFullName} SHA pinning sync should succeed`);
+  assert(
+    result.actionsShaPinningSync?.actionsShaPinning === 'updated',
+    `${repoFullName} SHA pinning should report updated`
+  );
+  assertSubResult(repoFullName, result, 'actions-sha-pinning-sync');
+}
+
+async function assertEnvironmentTagPolicyRepo(octokit, repoFullName, result) {
+  const environment = await getEnvironment(octokit, repoFullName, 'production');
+  assert(
+    environment.deployment_branch_policy?.custom_branch_policies === true,
+    `${repoFullName} should use custom deployment branch policies`
+  );
+
+  const actualPolicies = (await listEnvironmentDeploymentBranchPolicies(octokit, repoFullName, 'production'))
+    .map(({ name, type }) => ({ name, type }))
+    .sort((a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+  const expectedPolicies = [
+    { name: 'release/*', type: 'branch' },
+    { name: 'hotfix-*', type: 'tag' },
+    { name: 'v*', type: 'tag' }
+  ].sort((a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+
+  assert(
+    JSON.stringify(actualPolicies) === JSON.stringify(expectedPolicies),
+    `${repoFullName} deployment policies should include the configured branch and tag patterns`
+  );
+  assert(result.environmentsSync?.success === true, `${repoFullName} environment sync should succeed`);
+  assert(
+    result.environmentsSync?.environments === 'updated',
+    `${repoFullName} environment sync should report updated`
+  );
+  assertSubResult(repoFullName, result, 'environments-sync');
 }
 
 async function assertImmutableReleasesRepo(octokit, repoFullName, result) {
@@ -803,8 +874,8 @@ async function main() {
     const { repos } = readIntegrationConfig();
     const results = parseResultsOutput();
 
-    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 37, 'updated-repositories should equal 37');
-    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 33, 'changed-repositories should equal 33');
+    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 44, 'updated-repositories should equal 44');
+    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 40, 'changed-repositories should equal 40');
     assert(parseIntegerOutput('ACTION_PENDING_REPOSITORIES') === 2, 'pending-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 2, 'unchanged-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
@@ -825,6 +896,26 @@ async function main() {
         await assertRebaseMergeRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-update-branch-a')) {
         await assertUpdateBranchRepo(octokit, repoConfig.repo, result);
+      } else if (repoConfig.repo.endsWith('/it-projects-enabled-a')) {
+        await assertProjectsRepo(octokit, repoConfig.repo, result, true);
+      } else if (repoConfig.repo.endsWith('/it-projects-disabled-a')) {
+        await assertProjectsRepo(octokit, repoConfig.repo, result, false);
+      } else if (repoConfig.repo.endsWith('/it-actions-permissions-read-a')) {
+        await assertWorkflowPermissionsRepo(octokit, repoConfig.repo, result, {
+          default_workflow_permissions: 'read',
+          can_approve_pull_request_reviews: true
+        });
+      } else if (repoConfig.repo.endsWith('/it-actions-permissions-write-a')) {
+        await assertWorkflowPermissionsRepo(octokit, repoConfig.repo, result, {
+          default_workflow_permissions: 'write',
+          can_approve_pull_request_reviews: false
+        });
+      } else if (repoConfig.repo.endsWith('/it-actions-sha-pinning-required-a')) {
+        await assertActionsShaPinningRepo(octokit, repoConfig.repo, result, true);
+      } else if (repoConfig.repo.endsWith('/it-actions-sha-pinning-not-required-a')) {
+        await assertActionsShaPinningRepo(octokit, repoConfig.repo, result, false);
+      } else if (repoConfig.repo.endsWith('/it-environment-tag-policy-a')) {
+        await assertEnvironmentTagPolicyRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-immutable-releases-a')) {
         await assertImmutableReleasesRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-code-scanning-a')) {
