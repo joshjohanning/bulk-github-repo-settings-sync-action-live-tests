@@ -1,0 +1,7 @@
+labels:
+  - name: live-invalid-first
+    color: '0e8a16'
+  - name: live-invalid-duplicate
+    color: 'd73a4a'
+  - name: LIVE-INVALID-DUPLICATE
+    color: 'cfd3d7'

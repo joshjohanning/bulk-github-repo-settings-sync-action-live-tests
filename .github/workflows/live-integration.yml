@@ -190,6 +190,10 @@ jobs:
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.commit-messages.override.yml
           cp integration-test/configs/repos.rulesets-unchanged.template.yml integration-test/configs/repos.rulesets-unchanged.yml
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.rulesets-unchanged.yml
+          cp integration-test/configs/repos.labels.template.yml integration-test/configs/repos.labels.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.labels.yml
+          cp integration-test/configs/repos.labels.dry-run.template.yml integration-test/configs/repos.labels.dry-run.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.labels.dry-run.yml
 
       - name: Prepare file-sync mode fixtures
         run: |
@@ -265,6 +269,88 @@ jobs:
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-rulesets-unchanged.outputs['warning-repositories'] }}
           ACTION_RESULTS: ${{ steps.live-sync-rulesets-unchanged.outputs['results'] }}
         run: node integration-test/scripts/assert-live-test-rulesets-unchanged.js
+
+      - name: Labels dry-run scenario
+        id: live-sync-labels-dry-run
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.labels.dry-run.yml
+          dry-run: true
+          labels: |
+            live-global-inline
+            LIVE-PRECEDENCE
+          summary-heading: Labels dry-run
+
+      - name: Assert labels dry-run scenario
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.labels.dry-run.yml
+          LABELS_SCENARIO: dry-run
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-labels-dry-run.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-labels-dry-run.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-labels-dry-run.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-labels-dry-run.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-labels-dry-run.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-labels-dry-run.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-labels-dry-run.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-labels.js
+
+      - name: Labels sync scenario
+        id: live-sync-labels
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.labels.yml
+          labels: |
+            live-global-inline
+            LIVE-PRECEDENCE
+          summary-heading: Labels sync
+
+      - name: Assert labels sync scenario
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.labels.yml
+          LABELS_SCENARIO: apply
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-labels.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-labels.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-labels.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-labels.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-labels.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-labels.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-labels.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-labels.js
+
+      - name: Labels unchanged re-run scenario
+        id: live-sync-labels-unchanged
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.labels.yml
+          labels: |
+            live-global-inline
+            LIVE-PRECEDENCE
+          summary-heading: Labels unchanged re-run
+
+      - name: Assert labels unchanged re-run scenario
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.labels.yml
+          LABELS_SCENARIO: unchanged
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-labels-unchanged.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-labels-unchanged.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-labels-unchanged.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-labels-unchanged.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-labels-unchanged.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-labels-unchanged.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-labels-unchanged.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-labels.js
 
       - name: Run direct file sync scenario
         id: live-sync-direct-file

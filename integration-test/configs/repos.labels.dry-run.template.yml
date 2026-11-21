@@ -1,0 +1,3 @@
+repos:
+  - repo: __LIVE_TEST_ORG__/it-labels-dry-run-a
+    labels-file: ./integration-test/sources/labels.json

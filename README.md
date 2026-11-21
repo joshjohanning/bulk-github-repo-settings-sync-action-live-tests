@@ -49,7 +49,7 @@ In this repository, set:
 
 - **Administration**: Read & write (create repos, settings, topics)
 - **Contents**: Read & write (create/update/delete files)
-- **Pull requests**: Read & write (PR-based file sync)
+- **Pull requests**: Read & write (PR-based file sync, repository label sync)
 - **Workflows**: Read & write (sync `.github/workflows/`)
 - **Custom properties** (org-level): Admin (repo selection tests)
 
