@@ -206,7 +206,7 @@ async function assertUpdateBranchRepo(octokit, repoFullName, result) {
 async function assertProjectsRepo(octokit, repoFullName, result, expected) {
   const repository = await getRepository(octokit, repoFullName);
   assert(repository.has_projects === expected, `${repoFullName} projects should be ${expected}`);
-  assertChangedSetting(result, repoFullName, 'projects');
+  assertChangedSetting(result, repoFullName, 'has_projects');
   assertSubResult(repoFullName, result, 'settings');
 }
 
