@@ -7,6 +7,7 @@ import {
   createOctokit,
   ensureForkExists,
   deleteBranchIfExists,
+  deleteEnvironmentIfExists,
   deleteFileIfExists,
   deleteAutolinkIfExistsByPrefix,
   deleteRulesetIfExistsByName,
@@ -14,10 +15,12 @@ import {
   ensureOrgCustomProperty,
   ensureRepositoryExists,
   setCodeScanningDefaultSetupState,
+  setActionsShaPinningRequired,
   setDependabotAlertsEnabled,
   setDependabotSecurityUpdatesEnabled,
   setImmutableReleasesEnabled,
   setPrivateVulnerabilityReportingEnabled,
+  setWorkflowPermissions,
   setOrgCustomPropertyValues,
   setRepositoryArchived,
   setSecurityAndAnalysis,
@@ -272,6 +275,32 @@ async function resetUpdateBranchRepo(octokit, repoFullName) {
   await updateRepositorySettings(octokit, repoFullName, {
     allow_update_branch: false
   });
+}
+
+async function resetProjectsRepo(octokit, repoFullName, projects) {
+  info(`Resetting projects baseline for ${repoFullName}`);
+  await ensureRepositoryExists(octokit, repoFullName);
+  await updateRepositorySettings(octokit, repoFullName, {
+    has_projects: projects
+  });
+}
+
+async function resetWorkflowPermissionsRepo(octokit, repoFullName, permissions) {
+  info(`Resetting workflow permissions baseline for ${repoFullName}`);
+  await ensureRepositoryExists(octokit, repoFullName);
+  await setWorkflowPermissions(octokit, repoFullName, permissions);
+}
+
+async function resetActionsShaPinningRepo(octokit, repoFullName, required) {
+  info(`Resetting actions SHA pinning baseline for ${repoFullName}`);
+  await ensureRepositoryExists(octokit, repoFullName);
+  await setActionsShaPinningRequired(octokit, repoFullName, required);
+}
+
+async function resetEnvironmentTagPolicyRepo(octokit, repoFullName) {
+  info(`Resetting environment tag policy baseline for ${repoFullName}`);
+  await ensureRepositoryExists(octokit, repoFullName);
+  await deleteEnvironmentIfExists(octokit, repoFullName, 'production');
 }
 
 async function resetImmutableReleasesRepo(octokit, repoFullName) {
@@ -580,6 +609,26 @@ async function resetRepo(octokit, repoConfig) {
     await resetRebaseMergeRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-update-branch-a')) {
     await resetUpdateBranchRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-projects-enabled-a')) {
+    await resetProjectsRepo(octokit, repoFullName, false);
+  } else if (repoFullName.endsWith('/it-projects-disabled-a')) {
+    await resetProjectsRepo(octokit, repoFullName, true);
+  } else if (repoFullName.endsWith('/it-actions-permissions-read-a')) {
+    await resetWorkflowPermissionsRepo(octokit, repoFullName, {
+      default_workflow_permissions: 'write',
+      can_approve_pull_request_reviews: false
+    });
+  } else if (repoFullName.endsWith('/it-actions-permissions-write-a')) {
+    await resetWorkflowPermissionsRepo(octokit, repoFullName, {
+      default_workflow_permissions: 'read',
+      can_approve_pull_request_reviews: true
+    });
+  } else if (repoFullName.endsWith('/it-actions-sha-pinning-required-a')) {
+    await resetActionsShaPinningRepo(octokit, repoFullName, false);
+  } else if (repoFullName.endsWith('/it-actions-sha-pinning-not-required-a')) {
+    await resetActionsShaPinningRepo(octokit, repoFullName, true);
+  } else if (repoFullName.endsWith('/it-environment-tag-policy-a')) {
+    await resetEnvironmentTagPolicyRepo(octokit, repoFullName);
   } else if (
     repoFullName.endsWith('/it-commit-message-explicit-a') ||
     repoFullName.endsWith('/it-commit-message-message-only-a') ||

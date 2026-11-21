@@ -13,6 +13,29 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-update-branch-a
     allow-update-branch: true
 
+  - repo: __LIVE_TEST_ORG__/it-projects-enabled-a
+    projects: true
+
+  - repo: __LIVE_TEST_ORG__/it-projects-disabled-a
+    projects: false
+
+  - repo: __LIVE_TEST_ORG__/it-actions-permissions-read-a
+    actions-default-workflow-permissions: read
+    actions-can-approve-pull-request-reviews: true
+
+  - repo: __LIVE_TEST_ORG__/it-actions-permissions-write-a
+    actions-default-workflow-permissions: write
+    actions-can-approve-pull-request-reviews: false
+
+  - repo: __LIVE_TEST_ORG__/it-actions-sha-pinning-required-a
+    actions-sha-pinning-required: true
+
+  - repo: __LIVE_TEST_ORG__/it-actions-sha-pinning-not-required-a
+    actions-sha-pinning-required: false
+
+  - repo: __LIVE_TEST_ORG__/it-environment-tag-policy-a
+    environments-file: ./integration-test/sources/environments-tag-policy.yml
+
   - repo: __LIVE_TEST_ORG__/it-immutable-releases-a
     immutable-releases: true
 

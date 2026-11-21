@@ -1,0 +1,10 @@
+environments:
+  - name: production
+    deployment_branch_policy:
+      protected_branches: false
+      custom_branch_policies: true
+    branch_name_patterns:
+      - release/*
+    tag_name_patterns:
+      - v*
+      - hotfix-*
