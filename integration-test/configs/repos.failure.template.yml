@@ -21,3 +21,6 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-invalid-workflows-file-a
     workflow-files:
       - ./integration-test/sources/DOES-NOT-EXIST.yml
+
+  - repo: __LIVE_TEST_ORG__/it-invalid-labels-file-a
+    labels-file: ./integration-test/sources/labels.invalid.yml

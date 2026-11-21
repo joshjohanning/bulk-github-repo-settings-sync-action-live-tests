@@ -3,6 +3,7 @@ import {
   createOctokit,
   getRepository,
   info,
+  listLabels,
   listOpenPullRequestsForBranch,
   readIntegrationConfig
 } from './helpers.js';
@@ -32,14 +33,14 @@ async function main() {
     const { repos } = readIntegrationConfig();
     const results = parseResultsOutput();
 
-    assert(repos.length === 7, 'failure config should include exactly seven repositories');
-    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 7, 'updated-repositories should equal 7');
+    assert(repos.length === 8, 'failure config should include exactly eight repositories');
+    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 8, 'updated-repositories should equal 8');
     assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 0, 'changed-repositories should equal 0');
     assert(parseIntegerOutput('ACTION_PENDING_REPOSITORIES') === 0, 'pending-repositories should equal 0');
-    assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 7, 'unchanged-repositories should equal 7');
+    assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 8, 'unchanged-repositories should equal 8');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
-    assert(parseIntegerOutput('ACTION_WARNING_REPOSITORIES') === 6, 'warning-repositories should equal 6');
-    assert(results.length === 7, 'results output should include every configured repository');
+    assert(parseIntegerOutput('ACTION_WARNING_REPOSITORIES') === 7, 'warning-repositories should equal 7');
+    assert(results.length === 8, 'results output should include every configured repository');
 
     const resultsByRepo = new Map(results.map(result => [result.repository, result]));
 
@@ -98,6 +99,25 @@ async function main() {
         assert(
           result.workflowFilesSyncWarning?.includes('Failed to read file at'),
           `${repoFullName} should report invalid workflow file path`
+        );
+      } else if (repoFullName.endsWith('/it-invalid-labels-file-a')) {
+        assert(result.success === true, `${repoFullName} result should be successful`);
+        assert(result.hasWarnings === true, `${repoFullName} should have warnings`);
+        assert(result.labelsSync?.success === false, `${repoFullName} labels sync should fail`);
+        assert(
+          result.labelsSync.error?.includes('Duplicate label name: LIVE-INVALID-DUPLICATE'),
+          `${repoFullName} should report duplicate label name, got: ${result.labelsSync.error}`
+        );
+        assert(
+          result.subResults?.some(subResult => subResult.kind === 'labels-sync' && subResult.status === 'warning'),
+          `${repoFullName} should include a labels-sync warning sub-result`
+        );
+        const liveLabels = (await listLabels(octokit, repoFullName)).filter(label =>
+          label.name.toLowerCase().startsWith('live-')
+        );
+        assert(
+          liveLabels.length === 0,
+          `${repoFullName} should not create labels when the labels file is invalid, found: ${liveLabels.map(label => label.name).join(', ')}`
         );
       } else {
         throw new Error(`No failure assertion scenario configured for ${repoFullName}`);

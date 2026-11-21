@@ -680,3 +680,40 @@ export async function deleteAutolinkIfExistsByPrefix(octokit, repoFullName, keyP
   });
   await paceMutation();
 }
+
+export async function listLabels(octokit, repoFullName) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  return octokit.paginate(octokit.rest.issues.listLabelsForRepo, {
+    owner,
+    repo,
+    per_page: 100
+  });
+}
+
+export async function createLabel(octokit, repoFullName, label) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  await octokit.rest.issues.createLabel({
+    owner,
+    repo,
+    ...label
+  });
+  await paceMutation();
+}
+
+export async function deleteLabelsWithPrefix(octokit, repoFullName, prefix) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  const labels = await listLabels(octokit, repoFullName);
+
+  for (const label of labels) {
+    if (!label.name.toLowerCase().startsWith(prefix.toLowerCase())) {
+      continue;
+    }
+
+    await octokit.rest.issues.deleteLabel({
+      owner,
+      repo,
+      name: label.name
+    });
+    await paceMutation();
+  }
+}
