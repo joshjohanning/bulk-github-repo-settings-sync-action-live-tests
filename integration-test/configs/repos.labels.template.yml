@@ -5,7 +5,7 @@ repos:
       - Live-Inline-Existing
       - live-inline-new
       - LIVE-INLINE-NEW
-      - live inline spaced
+      - live-inline multiword
 
   # Inherits the global labels input; file entries take precedence on name matches.
   - repo: __LIVE_TEST_ORG__/it-labels-file-a

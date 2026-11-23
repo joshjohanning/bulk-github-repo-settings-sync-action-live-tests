@@ -16,7 +16,11 @@ The main suite checks repository projects and wiki toggles, both GitHub Actions
 workflow-permission fields and SHA-pinning states, plus environment deployment
 policies with both branch and tag patterns.
 
-It also runs dedicated dry-run, apply, and unchanged re-run scenarios for
+Label-sync scenarios cover case-insensitive matching and duplicate names, plus
+the multiword inline label `live-inline multiword`. Success fixtures avoid commas
+in label names, which GitHub rejects with a label-name validation error.
+
+The suite also runs dedicated dry-run, apply, and unchanged re-run scenarios for
 environments. These cover create-only inline names, `environments-file` entries
 that set `wait_timer`, user `reviewers`, and `prevent_self_review` and take
 precedence over matching inline names, and `delete-unmanaged-environments`. A
