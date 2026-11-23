@@ -96,8 +96,8 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          client-id: ${{ vars.LIVE_TEST_CLIENT_ID }}
+          private-key: ${{ secrets.LIVE_TEST_APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
@@ -160,8 +160,8 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          client-id: ${{ vars.LIVE_TEST_CLIENT_ID }}
+          private-key: ${{ secrets.LIVE_TEST_APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
@@ -359,8 +359,8 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          client-id: ${{ vars.LIVE_TEST_CLIENT_ID }}
+          private-key: ${{ secrets.LIVE_TEST_APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
@@ -418,8 +418,8 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          client-id: ${{ vars.LIVE_TEST_CLIENT_ID }}
+          private-key: ${{ secrets.LIVE_TEST_APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
@@ -666,8 +666,8 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          client-id: ${{ vars.LIVE_TEST_CLIENT_ID }}
+          private-key: ${{ secrets.LIVE_TEST_APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
@@ -719,8 +719,8 @@ jobs:
         id: auth
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ vars.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          client-id: ${{ vars.LIVE_TEST_CLIENT_ID }}
+          private-key: ${{ secrets.LIVE_TEST_APP_PRIVATE_KEY }}
           owner: ${{ vars.LIVE_TEST_ORG }}
 
       - name: Setup Node.js
