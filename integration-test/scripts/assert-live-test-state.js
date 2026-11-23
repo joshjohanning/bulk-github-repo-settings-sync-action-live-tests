@@ -533,12 +533,20 @@ async function assertRulesetsMultiRepo(octokit, repoFullName, result) {
   const deleteSubResult = assertSubResult(repoFullName, result, 'ruleset-delete', 'changed', {
     rulesetName: 'Obsolete Integration Ruleset'
   });
-  for (const subResult of [updateSubResult, createSubResult, deleteSubResult]) {
-    assert(
-      formatSubResultSummaryDetail(subResult).startsWith('rulesets: '),
-      `${repoFullName} ${subResult.kind} summary detail should include the rulesets: prefix`
-    );
-  }
+  const expectedMessages = [
+    `update "Integration Branch Protection" (ID: ${managedRuleset.id})`,
+    'create "Integration Multi Secondary"',
+    `delete "Obsolete Integration Ruleset" (ID: ${deleteSubResult.rulesetId})`
+  ];
+  const actualMessages = [updateSubResult, createSubResult, deleteSubResult].map(subResult => subResult.message);
+  assert(
+    JSON.stringify(actualMessages) === JSON.stringify(expectedMessages),
+    `${repoFullName} ruleset sub-result messages should match, got: ${JSON.stringify(actualMessages)}`
+  );
+  assert(
+    result.rulesetSync?.message === expectedMessages.join('; '),
+    `${repoFullName} ruleset sync message should join every operation, got: ${result.rulesetSync?.message}`
+  );
 }
 
 async function assertPullRequestTemplateRepo(octokit, repoFullName, result) {
