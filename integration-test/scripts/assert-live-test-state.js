@@ -97,13 +97,6 @@ function findSubResult(result, kind, status = 'changed') {
   return result.subResults?.find(subResult => subResult.kind === kind && subResult.status === status) || null;
 }
 
-function formatSubResultSummaryDetail(subResult) {
-  if (subResult.kind.startsWith('ruleset-')) {
-    return `rulesets: ${subResult.message}`;
-  }
-  return subResult.message;
-}
-
 function assertSubResult(repoFullName, result, kind, status = 'changed', expectedFields = {}) {
   const subResult = findSubResult(result, kind, status);
   assert(subResult, `${repoFullName} should include a ${status} ${kind} sub-result`);
@@ -418,26 +411,21 @@ async function assertRulesetsRepo(octokit, repoFullName, result) {
   assert(result.rulesetSync?.success === true, `${repoFullName} ruleset sync should be successful`);
   assert(result.rulesetSync?.ruleset === 'created', `${repoFullName} ruleset sync should report created`);
   assert(result.rulesetSync?.rulesetId === managedRuleset.id, `${repoFullName} should report managed ruleset ID`);
-  assert(
-    result.rulesetSync?.deletedRulesets?.some(
-      ruleset => ruleset.name === 'Obsolete Integration Ruleset' && ruleset.deleted
-    ),
-    `${repoFullName} should report the obsolete ruleset as deleted`
+  const deletedRuleset = result.rulesetSync?.deletedRulesets?.find(
+    ruleset => ruleset.name === 'Obsolete Integration Ruleset'
   );
-  const createSubResult = assertSubResult(repoFullName, result, 'ruleset-create', 'changed', {
-    rulesetName: 'Integration Branch Protection'
+  assert(deletedRuleset?.deleted, `${repoFullName} should report the obsolete ruleset as deleted`);
+  assert(Number.isInteger(deletedRuleset.id), `${repoFullName} should report the deleted ruleset ID`);
+  assertSubResult(repoFullName, result, 'ruleset-create', 'changed', {
+    rulesetName: 'Integration Branch Protection',
+    rulesetId: managedRuleset.id,
+    message: 'create "Integration Branch Protection"'
   });
-  const deleteSubResult = assertSubResult(repoFullName, result, 'ruleset-delete', 'changed', {
-    rulesetName: 'Obsolete Integration Ruleset'
+  assertSubResult(repoFullName, result, 'ruleset-delete', 'changed', {
+    rulesetName: 'Obsolete Integration Ruleset',
+    rulesetId: deletedRuleset.id,
+    message: `delete "Obsolete Integration Ruleset" (ID: ${deletedRuleset.id})`
   });
-  assert(
-    formatSubResultSummaryDetail(createSubResult).startsWith('rulesets: '),
-    `${repoFullName} ruleset-create summary detail should include the rulesets: prefix`
-  );
-  assert(
-    formatSubResultSummaryDetail(deleteSubResult).startsWith('rulesets: '),
-    `${repoFullName} ruleset-delete summary detail should include the rulesets: prefix`
-  );
 }
 
 async function assertRulesetsUpdateRepo(octokit, repoFullName, result) {
@@ -460,26 +448,21 @@ async function assertRulesetsUpdateRepo(octokit, repoFullName, result) {
     managedRuleset.rules.some(rule => rule.type === 'non_fast_forward'),
     `${repoFullName} managed ruleset should include the non_fast_forward rule`
   );
-  assert(
-    result.rulesetSync?.deletedRulesets?.some(
-      ruleset => ruleset.name === 'Obsolete Integration Ruleset' && ruleset.deleted
-    ),
-    `${repoFullName} should report the obsolete ruleset as deleted`
+  const deletedRuleset = result.rulesetSync?.deletedRulesets?.find(
+    ruleset => ruleset.name === 'Obsolete Integration Ruleset'
   );
-  const updateSubResult = assertSubResult(repoFullName, result, 'ruleset-update', 'changed', {
-    rulesetName: 'Integration Branch Protection'
+  assert(deletedRuleset?.deleted, `${repoFullName} should report the obsolete ruleset as deleted`);
+  assert(Number.isInteger(deletedRuleset.id), `${repoFullName} should report the deleted ruleset ID`);
+  assertSubResult(repoFullName, result, 'ruleset-update', 'changed', {
+    rulesetName: 'Integration Branch Protection',
+    rulesetId: managedRuleset.id,
+    message: `update "Integration Branch Protection" (ID: ${managedRuleset.id})`
   });
-  const deleteSubResult = assertSubResult(repoFullName, result, 'ruleset-delete', 'changed', {
-    rulesetName: 'Obsolete Integration Ruleset'
+  assertSubResult(repoFullName, result, 'ruleset-delete', 'changed', {
+    rulesetName: 'Obsolete Integration Ruleset',
+    rulesetId: deletedRuleset.id,
+    message: `delete "Obsolete Integration Ruleset" (ID: ${deletedRuleset.id})`
   });
-  assert(
-    formatSubResultSummaryDetail(updateSubResult).startsWith('rulesets: '),
-    `${repoFullName} ruleset-update summary detail should include the rulesets: prefix`
-  );
-  assert(
-    formatSubResultSummaryDetail(deleteSubResult).startsWith('rulesets: '),
-    `${repoFullName} ruleset-delete summary detail should include the rulesets: prefix`
-  );
 }
 
 async function assertPullRequestTemplateRepo(octokit, repoFullName, result) {
