@@ -47,3 +47,6 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-warning-a
   - repo: __LIVE_TEST_ORG__/it-unchanged-a
   - repo: __LIVE_TEST_ORG__/it-dry-run-a
+  - repo: __LIVE_TEST_ORG__/it-labels-inline-a
+  - repo: __LIVE_TEST_ORG__/it-labels-file-a
+  - repo: __LIVE_TEST_ORG__/it-labels-dry-run-a

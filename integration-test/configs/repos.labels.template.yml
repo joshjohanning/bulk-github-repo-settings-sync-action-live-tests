@@ -1,0 +1,12 @@
+repos:
+  # Per-repository array replaces the global labels input and is create-only.
+  - repo: __LIVE_TEST_ORG__/it-labels-inline-a
+    labels:
+      - Live-Inline-Existing
+      - live-inline-new
+      - LIVE-INLINE-NEW
+      - live-inline multiword
+
+  # Inherits the global labels input; file entries take precedence on name matches.
+  - repo: __LIVE_TEST_ORG__/it-labels-file-a
+    labels-file: ./integration-test/sources/labels.yml

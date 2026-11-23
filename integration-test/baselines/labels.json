@@ -1,0 +1,13 @@
+{
+  "file": [
+    { "name": "LIVE-FILE-UPDATE", "color": "111111", "description": "Outdated description" },
+    { "name": "live-file-keep-description", "color": "222222", "description": "Preserved description" },
+    { "name": "live-file-clear-description", "color": "333333", "description": "Description to clear" },
+    { "name": "live-file-unchanged", "color": "444444", "description": "Already up to date" },
+    { "name": "live-unmanaged", "color": "555555", "description": "Unmanaged label" }
+  ],
+  "inline": [
+    { "name": "live-inline-existing", "color": "000000", "description": "Existing inline label" },
+    { "name": "live-unmanaged", "color": "555555", "description": "Unmanaged label" }
+  ]
+}

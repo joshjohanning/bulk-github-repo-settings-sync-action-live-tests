@@ -2,6 +2,7 @@ import * as fs from 'fs';
 
 import {
   createAutolink,
+  createLabel,
   createPullRequest,
   createRuleset,
   createOctokit,
@@ -10,6 +11,7 @@ import {
   deleteEnvironmentIfExists,
   deleteFileIfExists,
   deleteAutolinkIfExistsByPrefix,
+  deleteLabelsWithPrefix,
   deleteRulesetIfExistsByName,
   ensureBranchFromDefault,
   ensureOrgCustomProperty,
@@ -419,6 +421,17 @@ async function resetAutolinksRepo(octokit, repoFullName) {
   await createAutolink(octokit, repoFullName, obsoleteAutolink);
 }
 
+async function resetLabelsRepo(octokit, repoFullName, baselineLabels = []) {
+  info(`Resetting labels baseline for ${repoFullName}`);
+  await ensureRepositoryExists(octokit, repoFullName);
+  // Only labels using the live- test prefix are managed; GitHub default labels are left alone.
+  await deleteLabelsWithPrefix(octokit, repoFullName, 'live-');
+
+  for (const label of baselineLabels) {
+    await createLabel(octokit, repoFullName, label);
+  }
+}
+
 async function resetCopilotRepo(octokit, repoFullName) {
   info(`Resetting copilot instructions baseline for ${repoFullName}`);
   await resetPrSyncRepo(octokit, repoFullName, 'copilot-instructions-md-sync', ['.github/copilot-instructions.md']);
@@ -670,6 +683,12 @@ async function resetRepo(octokit, repoConfig) {
     await resetDirectFileSyncRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-autolinks-a')) {
     await resetAutolinksRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-labels-inline-a')) {
+    await resetLabelsRepo(octokit, repoFullName, readJsonFixture('integration-test/baselines/labels.json').inline);
+  } else if (repoFullName.endsWith('/it-labels-file-a') || repoFullName.endsWith('/it-labels-dry-run-a')) {
+    await resetLabelsRepo(octokit, repoFullName, readJsonFixture('integration-test/baselines/labels.json').file);
+  } else if (repoFullName.endsWith('/it-invalid-labels-file-a')) {
+    await resetLabelsRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-copilot-a')) {
     await resetCopilotRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-package-json-a')) {

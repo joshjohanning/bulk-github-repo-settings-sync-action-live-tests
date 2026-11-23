@@ -16,6 +16,10 @@ The main suite checks repository projects toggles, both GitHub Actions
 workflow-permission fields and SHA-pinning states, plus environment deployment
 policies with both branch and tag patterns.
 
+Label-sync scenarios cover case-insensitive matching and duplicate names, plus
+the multiword inline label `live-inline multiword`. Success fixtures avoid commas
+in label names, which GitHub rejects with a label-name validation error.
+
 ## Usage
 
 Go to **Actions → Live Integration Tests → Run workflow** and provide:
@@ -53,7 +57,7 @@ In this repository, set:
 
 - **Administration**: Read & write (create repos, settings, topics)
 - **Contents**: Read & write (create/update/delete files)
-- **Pull requests**: Read & write (PR-based file sync)
+- **Pull requests**: Read & write (PR-based file sync, repository label sync)
 - **Workflows**: Read & write (sync `.github/workflows/`)
 - **Custom properties** (org-level): Admin (repo selection tests)
 
