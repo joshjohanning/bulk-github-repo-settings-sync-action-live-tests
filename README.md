@@ -26,7 +26,10 @@ that set `wait_timer`, user `reviewers`, and `prevent_self_review` and take
 precedence over matching inline names, and `delete-unmanaged-environments`. A
 rules-based scenario selects the same repository with two overlapping rules and
 verifies that their `rulesets-file` values are merged additively and that the
-equivalent path aliases are deduplicated.
+equivalent path aliases are deduplicated. A separate repository syncs two
+`rulesets-file` entries with `delete-unmanaged-rulesets` to cover an update, a
+create, and a delete in one run. The failure suite verifies that ruleset files
+with duplicate `name` values are rejected with a warning and no ruleset changes.
 
 The environment reviewer fixture uses the `joshjohanning` user, who must be able
 to access the test organization's repositories. Update
