@@ -127,6 +127,34 @@ export async function ensureRepositoryExists(octokit, repoFullName, options = {}
   throw new Error(`Repository ${repoFullName} was created but did not become visible via the API in time`);
 }
 
+export async function ensureRepositoryAbsent(octokit, repoFullName) {
+  const { owner, repo } = getRepoParts(repoFullName);
+
+  try {
+    await octokit.rest.repos.delete({ owner, repo });
+    info(`Deleted ${repoFullName} so it is absent for the failure scenario`);
+    await paceMutation();
+  } catch (caughtError) {
+    if (caughtError.status !== 404) {
+      throw caughtError;
+    }
+  }
+
+  for (let attempt = 1; attempt <= 10; attempt++) {
+    try {
+      await getRepository(octokit, repoFullName);
+    } catch (caughtError) {
+      if (caughtError.status === 404) {
+        return;
+      }
+      throw caughtError;
+    }
+    await sleep(1000);
+  }
+
+  throw new Error(`Repository ${repoFullName} is still visible via the API after deletion`);
+}
+
 export async function ensureForkExists(octokit, sourceRepoFullName, targetRepoFullName) {
   const source = getRepoParts(sourceRepoFullName);
   const target = getRepoParts(targetRepoFullName);
