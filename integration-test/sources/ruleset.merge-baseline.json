@@ -4,7 +4,10 @@
   "enforcement": "active",
   "conditions": {
     "ref_name": {
-      "include": ["~DEFAULT_BRANCH"]
+      "include": [
+        "~DEFAULT_BRANCH"
+      ],
+      "exclude": []
     }
   },
   "rules": [
