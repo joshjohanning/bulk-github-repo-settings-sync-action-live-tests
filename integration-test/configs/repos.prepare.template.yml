@@ -18,6 +18,7 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-rulesets-merge-a
   - repo: __LIVE_TEST_ORG__/it-immutable-releases-a
   - repo: __LIVE_TEST_ORG__/it-code-scanning-a
+  - repo: __LIVE_TEST_ORG__/it-code-scanning-disable-a
   - repo: __LIVE_TEST_ORG__/it-secret-scanning-a
   - repo: __LIVE_TEST_ORG__/it-push-protection-a
   - repo: __LIVE_TEST_ORG__/it-private-vulnerability-reporting-a
