@@ -2,17 +2,24 @@ import { assert, createOctokit, getRequiredEnv, info, sleep } from './helpers.js
 
 const FAILURE_SUMMARY_PATTERN = /^\d+ repositor(?:y|ies) failed to update$/;
 
-async function findJob(octokit, owner, repo, runId, attempt, jobName) {
-  const jobs = await octokit.paginate(octokit.rest.actions.listJobsForWorkflowRunAttempt, {
-    owner,
-    repo,
-    run_id: runId,
-    attempt_number: attempt,
-    per_page: 100
-  });
-  const matches = jobs.filter(job => job.name === jobName);
-  assert(matches.length === 1, `Expected exactly one ${jobName} job in run ${runId}, found ${matches.length}`);
-  return matches[0];
+// "Re-run failed jobs" reuses already-successful jobs from earlier attempts, so search back
+// from the current attempt for the most recent execution of the job.
+async function findJob(octokit, owner, repo, runId, currentAttempt, jobName) {
+  for (let attempt = currentAttempt; attempt >= 1; attempt--) {
+    const jobs = await octokit.paginate(octokit.rest.actions.listJobsForWorkflowRunAttempt, {
+      owner,
+      repo,
+      run_id: runId,
+      attempt_number: attempt,
+      per_page: 100
+    });
+    const matches = jobs.filter(job => job.name === jobName);
+    assert(matches.length <= 1, `Expected at most one ${jobName} job in run ${runId} attempt ${attempt}`);
+    if (matches.length === 1) {
+      return matches[0];
+    }
+  }
+  throw new Error(`No ${jobName} job found in run ${runId} attempts 1-${currentAttempt}`);
 }
 
 async function listFailureSummaryAnnotations(octokit, owner, repo, checkRunId) {
