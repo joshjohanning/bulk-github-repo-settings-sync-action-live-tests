@@ -210,6 +210,13 @@ async function assertProjectsRepo(octokit, repoFullName, result, expected) {
   assertSubResult(repoFullName, result, 'settings');
 }
 
+async function assertWikiRepo(octokit, repoFullName, result, expected) {
+  const repository = await getRepository(octokit, repoFullName);
+  assert(repository.has_wiki === expected, `${repoFullName} wiki should be ${expected}`);
+  assertChangedSetting(result, repoFullName, 'has_wiki');
+  assertSubResult(repoFullName, result, 'settings');
+}
+
 async function assertWorkflowPermissionsRepo(octokit, repoFullName, result, expected) {
   const permissions = await getWorkflowPermissions(octokit, repoFullName);
   assert(
@@ -874,8 +881,8 @@ async function main() {
     const { repos } = readIntegrationConfig();
     const results = parseResultsOutput();
 
-    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 44, 'updated-repositories should equal 44');
-    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 40, 'changed-repositories should equal 40');
+    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 46, 'updated-repositories should equal 46');
+    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 42, 'changed-repositories should equal 42');
     assert(parseIntegerOutput('ACTION_PENDING_REPOSITORIES') === 2, 'pending-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 2, 'unchanged-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
@@ -900,6 +907,10 @@ async function main() {
         await assertProjectsRepo(octokit, repoConfig.repo, result, true);
       } else if (repoConfig.repo.endsWith('/it-projects-disabled-a')) {
         await assertProjectsRepo(octokit, repoConfig.repo, result, false);
+      } else if (repoConfig.repo.endsWith('/it-wiki-enabled-a')) {
+        await assertWikiRepo(octokit, repoConfig.repo, result, true);
+      } else if (repoConfig.repo.endsWith('/it-wiki-disabled-a')) {
+        await assertWikiRepo(octokit, repoConfig.repo, result, false);
       } else if (repoConfig.repo.endsWith('/it-actions-permissions-read-a')) {
         await assertWorkflowPermissionsRepo(octokit, repoConfig.repo, result, {
           default_workflow_permissions: 'read',

@@ -1,0 +1,12 @@
+environments:
+  # Exists at baseline without protection rules; the file entry updates it and
+  # overrides the same inline name configured for the repository.
+  - name: live-review
+    wait_timer: 2
+    prevent_self_review: true
+    reviewers:
+      - type: User
+        login: joshjohanning
+  # Missing at baseline; created from the file.
+  - name: live-new
+    wait_timer: 1

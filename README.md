@@ -12,13 +12,27 @@ These tests run against real repositories in a dedicated disposable test organiz
 2. **Run** — Runs the action against those repos (dry-run first, then for real)
 3. **Assert** — Verifies the action outputs and actual GitHub state via API
 
-The main suite checks repository projects toggles, both GitHub Actions
+The main suite checks repository projects and wiki toggles, both GitHub Actions
 workflow-permission fields and SHA-pinning states, plus environment deployment
 policies with both branch and tag patterns.
 
 Label-sync scenarios cover case-insensitive matching and duplicate names, plus
 the multiword inline label `live-inline multiword`. Success fixtures avoid commas
 in label names, which GitHub rejects with a label-name validation error.
+
+The suite also runs dedicated dry-run, apply, and unchanged re-run scenarios for
+environments. These cover create-only inline names, `environments-file` entries
+that set `wait_timer`, user `reviewers`, and `prevent_self_review` and take
+precedence over matching inline names, and `delete-unmanaged-environments`. A
+rules-based scenario selects the same repository with two overlapping rules and
+verifies that their `rulesets-file` values are merged additively and that the
+equivalent path aliases are deduplicated.
+
+The environment reviewer fixture uses the `joshjohanning` user, who must be able
+to access the test organization's repositories. Update
+`integration-test/sources/environments.yml` and
+`integration-test/scripts/assert-live-test-environments.js` when using another
+test organization.
 
 ## Usage
 
@@ -55,7 +69,7 @@ In this repository, set:
 
 ### Required Permissions
 
-- **Administration**: Read & write (create repos, settings, topics)
+- **Administration**: Read & write (create repos, settings, topics, rulesets, environments)
 - **Contents**: Read & write (create/update/delete files)
 - **Pull requests**: Read & write (PR-based file sync, repository label sync)
 - **Workflows**: Read & write (sync `.github/workflows/`)

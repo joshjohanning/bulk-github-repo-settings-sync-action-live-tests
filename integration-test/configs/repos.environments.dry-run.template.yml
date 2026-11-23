@@ -1,0 +1,8 @@
+repos:
+  # Same desired state as the file scenario, previewed without applying changes.
+  - repo: __LIVE_TEST_ORG__/it-environments-dry-run-a
+    environments:
+      - live-review
+      - live-inline
+    environments-file: ./integration-test/sources/environments.yml
+    delete-unmanaged-environments: true

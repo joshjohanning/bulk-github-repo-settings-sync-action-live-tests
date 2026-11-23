@@ -1,0 +1,17 @@
+repos:
+  # Inline names are create-only: an existing environment keeps its protection
+  # rules, and environments outside the managed list are deleted.
+  - repo: __LIVE_TEST_ORG__/it-environments-inline-a
+    environments:
+      - live-existing
+      - live-staging
+    delete-unmanaged-environments: true
+
+  # File entries update protection rules (wait timer, reviewers, and
+  # prevent_self_review) and take precedence over matching inline names.
+  - repo: __LIVE_TEST_ORG__/it-environments-file-a
+    environments:
+      - live-review
+      - live-inline
+    environments-file: ./integration-test/sources/environments.yml
+    delete-unmanaged-environments: true

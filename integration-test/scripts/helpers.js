@@ -256,6 +256,35 @@ export async function getEnvironment(octokit, repoFullName, environmentName) {
   return data;
 }
 
+export async function listEnvironments(octokit, repoFullName) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  const environments = [];
+  for (let page = 1; ; page++) {
+    const { data } = await octokit.request('GET /repos/{owner}/{repo}/environments', {
+      owner,
+      repo,
+      per_page: 100,
+      page
+    });
+    const pageEnvironments = data.environments || [];
+    environments.push(...pageEnvironments);
+    if (pageEnvironments.length < 100) {
+      return environments;
+    }
+  }
+}
+
+export async function putEnvironment(octokit, repoFullName, environmentName, settings = {}) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  await octokit.request('PUT /repos/{owner}/{repo}/environments/{environment_name}', {
+    owner,
+    repo,
+    environment_name: environmentName,
+    ...settings
+  });
+  await paceMutation();
+}
+
 export async function listEnvironmentDeploymentBranchPolicies(octokit, repoFullName, environmentName) {
   const { owner, repo } = getRepoParts(repoFullName);
   const { data } = await octokit.request(

@@ -1,0 +1,18 @@
+owner: __LIVE_TEST_ORG__
+rules:
+  # Broad baseline rule.
+  - selector:
+      repos:
+        - it-rulesets-merge-a
+    settings:
+      rulesets-file: ./integration-test/sources/ruleset.merge-baseline.json
+
+  # Overlapping, more specific rule. Its ruleset files are merged with the
+  # baseline rule's files; the equivalent path alias is deduplicated.
+  - selector:
+      repos:
+        - it-rulesets-merge-a
+    settings:
+      rulesets-file:
+        - ./integration-test/sources/ruleset.merge-specific.json
+        - integration-test/sources/ruleset.merge-specific.json
