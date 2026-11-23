@@ -954,6 +954,10 @@ jobs:
         run: |
           cp integration-test/configs/repos.failure.template.yml integration-test/configs/repos.failure.yml
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.failure.yml
+          for scenario in single plural; do
+            cp "integration-test/configs/repos.partial-failure.${scenario}.template.yml" "integration-test/configs/repos.partial-failure.${scenario}.yml"
+            sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" "integration-test/configs/repos.partial-failure.${scenario}.yml"
+          done
 
       - name: Run failure scenarios against live test repositories
         id: live-sync-failures
@@ -989,3 +993,112 @@ jobs:
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-failures.outputs['warning-repositories'] }}
           ACTION_RESULTS: ${{ steps.live-sync-failures.outputs['results'] }}
         run: node integration-test/scripts/assert-live-test-failures.js
+
+      - name: Run partial failure scenario (single failure) against live test repositories
+        id: live-sync-partial-failure-single
+        continue-on-error: true
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.partial-failure.single.yml
+          summary-heading: Partial failure scenario results (single failure)
+
+      - name: Print partial failure scenario (single failure) action outputs
+        run: |
+          echo "outcome=${{ steps.live-sync-partial-failure-single.outcome }}"
+          echo "updated-repositories=${{ steps.live-sync-partial-failure-single.outputs.updated-repositories }}"
+          echo "changed-repositories=${{ steps.live-sync-partial-failure-single.outputs.changed-repositories }}"
+          echo "pending-repositories=${{ steps.live-sync-partial-failure-single.outputs.pending-repositories }}"
+          echo "unchanged-repositories=${{ steps.live-sync-partial-failure-single.outputs.unchanged-repositories }}"
+          echo "failed-repositories=${{ steps.live-sync-partial-failure-single.outputs.failed-repositories }}"
+          echo "warning-repositories=${{ steps.live-sync-partial-failure-single.outputs.warning-repositories }}"
+          echo "::group::results"
+          echo '${{ steps.live-sync-partial-failure-single.outputs.results }}' | jq
+          echo "::endgroup::"
+
+      - name: Assert partial failure scenario (single failure) results
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.partial-failure.single.yml
+          ACTION_STEP_OUTCOME: ${{ steps.live-sync-partial-failure-single.outcome }}
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-partial-failure-single.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-partial-failure-single.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-partial-failure-single.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-partial-failure-single.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-partial-failure-single.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-partial-failure-single.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-partial-failure-single.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-partial-failure.js
+
+      - name: Run partial failure scenario (multiple failures) against live test repositories
+        id: live-sync-partial-failure-plural
+        continue-on-error: true
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.partial-failure.plural.yml
+          summary-heading: Partial failure scenario results (multiple failures)
+
+      - name: Print partial failure scenario (multiple failures) action outputs
+        run: |
+          echo "outcome=${{ steps.live-sync-partial-failure-plural.outcome }}"
+          echo "updated-repositories=${{ steps.live-sync-partial-failure-plural.outputs.updated-repositories }}"
+          echo "changed-repositories=${{ steps.live-sync-partial-failure-plural.outputs.changed-repositories }}"
+          echo "pending-repositories=${{ steps.live-sync-partial-failure-plural.outputs.pending-repositories }}"
+          echo "unchanged-repositories=${{ steps.live-sync-partial-failure-plural.outputs.unchanged-repositories }}"
+          echo "failed-repositories=${{ steps.live-sync-partial-failure-plural.outputs.failed-repositories }}"
+          echo "warning-repositories=${{ steps.live-sync-partial-failure-plural.outputs.warning-repositories }}"
+          echo "::group::results"
+          echo '${{ steps.live-sync-partial-failure-plural.outputs.results }}' | jq
+          echo "::endgroup::"
+
+      - name: Assert partial failure scenario (multiple failures) results
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.partial-failure.plural.yml
+          ACTION_STEP_OUTCOME: ${{ steps.live-sync-partial-failure-plural.outcome }}
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-partial-failure-plural.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-partial-failure-plural.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-partial-failure-plural.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-partial-failure-plural.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-partial-failure-plural.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-partial-failure-plural.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-partial-failure-plural.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-partial-failure.js
+
+  assert-failure-annotations:
+    if: ${{ !cancelled() && needs.test-failure.result == 'success' }}
+    needs:
+      - test-failure
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+
+    steps:
+      - name: Checkout live tests
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --allow-git=none
+
+      - name: Assert partial failure core.setFailed annotations
+        env:
+          INTEGRATION_GH_TOKEN: ${{ github.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          FAILURE_JOB_NAME: test-failure
+          EXPECTED_FAILURE_ANNOTATIONS: |
+            1 repository failed to update
+            2 repositories failed to update
+        run: node integration-test/scripts/assert-live-test-partial-failure-annotations.js

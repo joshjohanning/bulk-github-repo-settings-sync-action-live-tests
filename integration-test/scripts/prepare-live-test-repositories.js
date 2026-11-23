@@ -15,6 +15,7 @@ import {
   deleteRulesetIfExistsByName,
   ensureBranchFromDefault,
   ensureOrgCustomProperty,
+  ensureRepositoryAbsent,
   ensureRepositoryExists,
   listEnvironments,
   putEnvironment,
@@ -789,6 +790,11 @@ async function resetRepo(octokit, repoConfig) {
     await resetSelectionRepo(octokit, repoFullName, { private: repoConfig.private === true });
   } else if (repoFullName.endsWith('/it-archived-a')) {
     await resetArchivedRepo(octokit, repoFullName);
+  } else if (repoFullName.includes('/it-partial-success-')) {
+    await resetTopicsRepo(octokit, repoFullName);
+  } else if (repoFullName.includes('/it-partial-missing-')) {
+    info(`Ensuring ${repoFullName} does not exist`);
+    await ensureRepositoryAbsent(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-invalid-codeowners-path-a')) {
     await resetInvalidCodeownersPathRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-invalid-workflows-file-a')) {

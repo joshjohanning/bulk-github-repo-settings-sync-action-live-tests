@@ -7,3 +7,8 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-missing-package-json-a
   - repo: __LIVE_TEST_ORG__/it-invalid-workflows-file-a
   - repo: __LIVE_TEST_ORG__/it-invalid-labels-file-a
+  - repo: __LIVE_TEST_ORG__/it-partial-success-a
+  - repo: __LIVE_TEST_ORG__/it-partial-success-b
+  - repo: __LIVE_TEST_ORG__/it-partial-missing-a
+  - repo: __LIVE_TEST_ORG__/it-partial-missing-b
+  - repo: __LIVE_TEST_ORG__/it-partial-missing-c

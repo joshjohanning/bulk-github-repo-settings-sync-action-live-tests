@@ -1,0 +1,10 @@
+repos:
+  - repo: __LIVE_TEST_ORG__/it-partial-success-b
+    topics: partial-failure-check
+
+  # Prepare deletes these repositories so the action records real `success: false` results.
+  - repo: __LIVE_TEST_ORG__/it-partial-missing-b
+    topics: partial-failure-check
+
+  - repo: __LIVE_TEST_ORG__/it-partial-missing-c
+    topics: partial-failure-check

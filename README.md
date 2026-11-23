@@ -28,6 +28,15 @@ rules-based scenario selects the same repository with two overlapping rules and
 verifies that their `rulesets-file` values are merged additively and that the
 equivalent path aliases are deduplicated.
 
+The failure suite also runs two partial-failure scenarios. Prepare deletes the
+`it-partial-missing-*` repositories, so the action records real `success: false`
+results alongside a successful topics change on an `it-partial-success-*`
+repository. These steps use `continue-on-error: true` and assert a `failure`
+outcome, the `failed-repositories` count, and the successful results. A
+follow-up job reads the `test-failure` check-run annotations to verify the
+`core.setFailed` messages `1 repository failed to update` and
+`2 repositories failed to update`.
+
 The environment reviewer fixture uses the `joshjohanning` user, who must be able
 to access the test organization's repositories. Update
 `integration-test/sources/environments.yml` and
