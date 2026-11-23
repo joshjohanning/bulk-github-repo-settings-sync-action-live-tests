@@ -16,6 +16,8 @@ import {
   ensureBranchFromDefault,
   ensureOrgCustomProperty,
   ensureRepositoryExists,
+  listEnvironments,
+  putEnvironment,
   setCodeScanningDefaultSetupState,
   setActionsShaPinningRequired,
   setDependabotAlertsEnabled,
@@ -303,6 +305,36 @@ async function resetEnvironmentTagPolicyRepo(octokit, repoFullName) {
   info(`Resetting environment tag policy baseline for ${repoFullName}`);
   await ensureRepositoryExists(octokit, repoFullName);
   await deleteEnvironmentIfExists(octokit, repoFullName, 'production');
+}
+
+async function resetWikiRepo(octokit, repoFullName, wiki) {
+  info(`Resetting wiki baseline for ${repoFullName}`);
+  await ensureRepositoryExists(octokit, repoFullName);
+  await updateRepositorySettings(octokit, repoFullName, {
+    has_wiki: wiki
+  });
+}
+
+async function resetEnvironmentsRepo(octokit, repoFullName, baselineEnvironments) {
+  info(`Resetting environments baseline for ${repoFullName}`);
+  await ensureRepositoryExists(octokit, repoFullName);
+
+  // These repositories are dedicated to environment tests, so remove every
+  // environment before recreating the known baseline.
+  for (const environment of await listEnvironments(octokit, repoFullName)) {
+    await deleteEnvironmentIfExists(octokit, repoFullName, environment.name);
+  }
+
+  for (const { name, ...settings } of baselineEnvironments) {
+    await putEnvironment(octokit, repoFullName, name, settings);
+  }
+}
+
+async function resetRulesetsMergeRepo(octokit, repoFullName) {
+  info(`Resetting ruleset merge baseline for ${repoFullName}`);
+  await ensureRepositoryExists(octokit, repoFullName);
+  await deleteRulesetIfExistsByName(octokit, repoFullName, 'Integration Merge Baseline');
+  await deleteRulesetIfExistsByName(octokit, repoFullName, 'Integration Merge Specific');
 }
 
 async function resetImmutableReleasesRepo(octokit, repoFullName) {
@@ -640,6 +672,22 @@ async function resetRepo(octokit, repoConfig) {
     await resetActionsShaPinningRepo(octokit, repoFullName, false);
   } else if (repoFullName.endsWith('/it-actions-sha-pinning-not-required-a')) {
     await resetActionsShaPinningRepo(octokit, repoFullName, true);
+  } else if (repoFullName.endsWith('/it-wiki-enabled-a')) {
+    await resetWikiRepo(octokit, repoFullName, false);
+  } else if (repoFullName.endsWith('/it-wiki-disabled-a')) {
+    await resetWikiRepo(octokit, repoFullName, true);
+  } else if (repoFullName.endsWith('/it-environments-inline-a')) {
+    await resetEnvironmentsRepo(octokit, repoFullName, [
+      { name: 'live-existing', wait_timer: 5 },
+      { name: 'live-unmanaged-inline' }
+    ]);
+  } else if (
+    repoFullName.endsWith('/it-environments-file-a') ||
+    repoFullName.endsWith('/it-environments-dry-run-a')
+  ) {
+    await resetEnvironmentsRepo(octokit, repoFullName, [{ name: 'live-review' }, { name: 'live-unmanaged-file' }]);
+  } else if (repoFullName.endsWith('/it-rulesets-merge-a')) {
+    await resetRulesetsMergeRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-environment-tag-policy-a')) {
     await resetEnvironmentTagPolicyRepo(octokit, repoFullName);
   } else if (

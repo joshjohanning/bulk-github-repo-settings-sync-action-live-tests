@@ -194,6 +194,12 @@ jobs:
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.labels.yml
           cp integration-test/configs/repos.labels.dry-run.template.yml integration-test/configs/repos.labels.dry-run.yml
           sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.labels.dry-run.yml
+          cp integration-test/configs/repos.environments.template.yml integration-test/configs/repos.environments.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.environments.yml
+          cp integration-test/configs/repos.environments.dry-run.template.yml integration-test/configs/repos.environments.dry-run.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.environments.dry-run.yml
+          cp integration-test/configs/repos.rulesets-merge.template.yml integration-test/configs/repos.rulesets-merge.yml
+          sed -i "s|__LIVE_TEST_ORG__|${LIVE_TEST_ORG}|g" integration-test/configs/repos.rulesets-merge.yml
 
       - name: Prepare file-sync mode fixtures
         run: |
@@ -351,6 +357,127 @@ jobs:
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-labels-unchanged.outputs['warning-repositories'] }}
           ACTION_RESULTS: ${{ steps.live-sync-labels-unchanged.outputs['results'] }}
         run: node integration-test/scripts/assert-live-test-labels.js
+
+      - name: Environments dry-run scenario
+        id: live-sync-environments-dry-run
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.environments.dry-run.yml
+          dry-run: true
+          summary-heading: Environments dry-run
+
+      - name: Assert environments dry-run scenario
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.environments.dry-run.yml
+          ENVIRONMENTS_SCENARIO: dry-run
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-environments-dry-run.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-environments-dry-run.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-environments-dry-run.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-environments-dry-run.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-environments-dry-run.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-environments-dry-run.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-environments-dry-run.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-environments.js
+
+      - name: Environments sync scenario
+        id: live-sync-environments
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.environments.yml
+          summary-heading: Environments sync
+
+      - name: Assert environments sync scenario
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.environments.yml
+          ENVIRONMENTS_SCENARIO: apply
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-environments.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-environments.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-environments.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-environments.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-environments.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-environments.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-environments.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-environments.js
+
+      - name: Environments unchanged re-run scenario
+        id: live-sync-environments-unchanged
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.environments.yml
+          summary-heading: Environments unchanged re-run
+
+      - name: Assert environments unchanged re-run scenario
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORIES_FILE: integration-test/configs/repos.environments.yml
+          ENVIRONMENTS_SCENARIO: unchanged
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-environments-unchanged.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-environments-unchanged.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-environments-unchanged.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-environments-unchanged.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-environments-unchanged.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-environments-unchanged.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-environments-unchanged.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-environments.js
+
+      - name: Overlapping rules ruleset-file merge scenario
+        id: live-sync-rulesets-merge
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.rulesets-merge.yml
+          summary-heading: Overlapping rules ruleset-file merge
+
+      - name: Assert overlapping rules ruleset-file merge scenario
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORY: ${{ vars.LIVE_TEST_ORG }}/it-rulesets-merge-a
+          RULESETS_MERGE_SCENARIO: apply
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-rulesets-merge.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-rulesets-merge.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-rulesets-merge.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-rulesets-merge.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-rulesets-merge.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-rulesets-merge.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-rulesets-merge.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-rulesets-merge.js
+
+      - name: Overlapping rules ruleset-file merge unchanged re-run
+        id: live-sync-rulesets-merge-unchanged
+        uses: ./action/
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          github-api-url: ${{ github.api_url }}
+          repositories-file: ./integration-test/configs/repos.rulesets-merge.yml
+          summary-heading: Overlapping rules ruleset-file merge unchanged re-run
+
+      - name: Assert overlapping rules ruleset-file merge unchanged re-run
+        env:
+          INTEGRATION_GH_TOKEN: ${{ steps.auth.outputs.token }}
+          INTEGRATION_API_URL: ${{ github.api_url }}
+          INTEGRATION_REPOSITORY: ${{ vars.LIVE_TEST_ORG }}/it-rulesets-merge-a
+          RULESETS_MERGE_SCENARIO: unchanged
+          ACTION_UPDATED_REPOSITORIES: ${{ steps.live-sync-rulesets-merge-unchanged.outputs['updated-repositories'] }}
+          ACTION_CHANGED_REPOSITORIES: ${{ steps.live-sync-rulesets-merge-unchanged.outputs['changed-repositories'] }}
+          ACTION_PENDING_REPOSITORIES: ${{ steps.live-sync-rulesets-merge-unchanged.outputs['pending-repositories'] }}
+          ACTION_UNCHANGED_REPOSITORIES: ${{ steps.live-sync-rulesets-merge-unchanged.outputs['unchanged-repositories'] }}
+          ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync-rulesets-merge-unchanged.outputs['failed-repositories'] }}
+          ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync-rulesets-merge-unchanged.outputs['warning-repositories'] }}
+          ACTION_RESULTS: ${{ steps.live-sync-rulesets-merge-unchanged.outputs['results'] }}
+        run: node integration-test/scripts/assert-live-test-rulesets-merge.js
 
       - name: Run direct file sync scenario
         id: live-sync-direct-file

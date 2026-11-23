@@ -19,6 +19,12 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-projects-disabled-a
     projects: false
 
+  - repo: __LIVE_TEST_ORG__/it-wiki-enabled-a
+    wiki: true
+
+  - repo: __LIVE_TEST_ORG__/it-wiki-disabled-a
+    wiki: false
+
   - repo: __LIVE_TEST_ORG__/it-actions-permissions-read-a
     actions-default-workflow-permissions: read
     actions-can-approve-pull-request-reviews: true
