@@ -38,6 +38,15 @@ equivalent path aliases are deduplicated. A separate repository syncs two
 create, and a delete in one run. The failure suite verifies that ruleset files
 with duplicate `name` values are rejected with a warning and no ruleset changes.
 
+The main suite also validates the actual HTML written by the action to
+`GITHUB_STEP_SUMMARY`, including each `rulesets:` prefix and create/update/delete
+detail in the corresponding repository's table row. A Node preload copies the
+completed summary at process exit, before the runner removes its per-step file;
+it does not redirect summary writes, replace the renderer, or disable the normal
+runner upload. The original summary is retained as the `live-sync-summary`
+artifact. Missing summary files or details fail the suite. Run the focused
+capture and assertion tests with `node --test integration-test/scripts/action-summary.test.js`.
+
 The failure suite also runs two partial-failure scenarios. Prepare deletes the
 `it-partial-missing-*` repositories, so the action records real `success: false`
 results alongside a successful topics change on an `it-partial-success-*`

@@ -173,6 +173,9 @@ jobs:
       - name: Install test dependencies
         run: npm ci --ignore-scripts --allow-git=none
 
+      - name: Test summary capture and assertions
+        run: node --test integration-test/scripts/action-summary.test.js
+
       - name: Build action
         run: cd action && npm ci && npm run package
 
@@ -235,6 +238,9 @@ jobs:
       - name: Run action against prepared live test repositories
         id: live-sync
         uses: ./action/
+        env:
+          NODE_OPTIONS: --require ${{ github.workspace }}/integration-test/scripts/capture-action-summary.cjs
+          ACTION_SUMMARY_CAPTURE_PATH: ${{ runner.temp }}/live-sync-summary.html
         with:
           github-token: ${{ steps.auth.outputs.token }}
           github-api-url: ${{ github.api_url }}
@@ -253,7 +259,16 @@ jobs:
           ACTION_FAILED_REPOSITORIES: ${{ steps.live-sync.outputs['failed-repositories'] }}
           ACTION_WARNING_REPOSITORIES: ${{ steps.live-sync.outputs['warning-repositories'] }}
           ACTION_RESULTS: ${{ steps.live-sync.outputs['results'] }}
+          ACTION_SUMMARY_CAPTURE_PATH: ${{ runner.temp }}/live-sync-summary.html
         run: node integration-test/scripts/assert-live-test-state.js
+
+      - name: Upload actual action summary
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-sync-summary
+          path: ${{ runner.temp }}/live-sync-summary.html
+          if-no-files-found: error
 
       - name: Re-run unchanged ruleset scenario
         id: live-sync-rulesets-unchanged

@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 
+import { assertRulesetSummary } from './assert-action-summary.js';
+
 import {
   assert,
   createOctokit,
@@ -439,6 +441,10 @@ async function assertRulesetsRepo(octokit, repoFullName, result) {
     rulesetId: deletedRuleset.id,
     message: `delete "Obsolete Integration Ruleset" (ID: ${deletedRuleset.id})`
   });
+  assertRulesetSummary(readActionSummary(), repoFullName, [
+    'create "Integration Branch Protection"',
+    `delete "Obsolete Integration Ruleset" (ID: ${deletedRuleset.id})`
+  ]);
 }
 
 async function assertRulesetsUpdateRepo(octokit, repoFullName, result) {
@@ -476,6 +482,10 @@ async function assertRulesetsUpdateRepo(octokit, repoFullName, result) {
     rulesetId: deletedRuleset.id,
     message: `delete "Obsolete Integration Ruleset" (ID: ${deletedRuleset.id})`
   });
+  assertRulesetSummary(readActionSummary(), repoFullName, [
+    `update "Integration Branch Protection" (ID: ${managedRuleset.id})`,
+    `delete "Obsolete Integration Ruleset" (ID: ${deletedRuleset.id})`
+  ]);
 }
 
 async function assertRulesetsMultiRepo(octokit, repoFullName, result) {
@@ -543,6 +553,13 @@ async function assertRulesetsMultiRepo(octokit, repoFullName, result) {
     result.rulesetSync?.message === expectedMessages.join('; '),
     `${repoFullName} ruleset sync message should join every operation, got: ${result.rulesetSync?.message}`
   );
+  assertRulesetSummary(readActionSummary(), repoFullName, expectedMessages);
+}
+
+function readActionSummary() {
+  const summaryPath = process.env.ACTION_SUMMARY_CAPTURE_PATH;
+  assert(summaryPath, 'Missing ACTION_SUMMARY_CAPTURE_PATH');
+  return fs.readFileSync(summaryPath, 'utf8');
 }
 
 async function assertPullRequestTemplateRepo(octokit, repoFullName, result) {
@@ -944,8 +961,8 @@ async function main() {
     const { repos } = readIntegrationConfig();
     const results = parseResultsOutput();
 
-    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 47, 'updated-repositories should equal 47');
-    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 43, 'changed-repositories should equal 43');
+    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 48, 'updated-repositories should equal 48');
+    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 44, 'changed-repositories should equal 44');
     assert(parseIntegerOutput('ACTION_PENDING_REPOSITORIES') === 2, 'pending-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 2, 'unchanged-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
