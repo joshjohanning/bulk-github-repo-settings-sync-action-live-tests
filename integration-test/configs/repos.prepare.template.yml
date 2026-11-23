@@ -3,6 +3,13 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-merge-commit-a
   - repo: __LIVE_TEST_ORG__/it-rebase-merge-a
   - repo: __LIVE_TEST_ORG__/it-update-branch-a
+  - repo: __LIVE_TEST_ORG__/it-projects-enabled-a
+  - repo: __LIVE_TEST_ORG__/it-projects-disabled-a
+  - repo: __LIVE_TEST_ORG__/it-actions-permissions-read-a
+  - repo: __LIVE_TEST_ORG__/it-actions-permissions-write-a
+  - repo: __LIVE_TEST_ORG__/it-actions-sha-pinning-required-a
+  - repo: __LIVE_TEST_ORG__/it-actions-sha-pinning-not-required-a
+  - repo: __LIVE_TEST_ORG__/it-environment-tag-policy-a
   - repo: __LIVE_TEST_ORG__/it-immutable-releases-a
   - repo: __LIVE_TEST_ORG__/it-code-scanning-a
   - repo: __LIVE_TEST_ORG__/it-secret-scanning-a

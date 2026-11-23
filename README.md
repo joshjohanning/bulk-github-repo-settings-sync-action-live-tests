@@ -8,9 +8,13 @@ These tests run against real repositories in a dedicated disposable test organiz
 
 ## How it works
 
-1. **Prepare** — Creates/resets ~30 repos in the test org to known baseline states
+1. **Prepare** — Creates and resets configured test repositories
 2. **Run** — Runs the action against those repos (dry-run first, then for real)
 3. **Assert** — Verifies the action outputs and actual GitHub state via API
+
+The main suite checks repository projects toggles, both GitHub Actions
+workflow-permission fields and SHA-pinning states, plus environment deployment
+policies with both branch and tag patterns.
 
 ## Usage
 
