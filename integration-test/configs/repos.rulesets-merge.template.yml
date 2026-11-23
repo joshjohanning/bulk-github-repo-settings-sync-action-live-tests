@@ -14,5 +14,5 @@ rules:
         - it-rulesets-merge-a
     settings:
       rulesets-file:
-        - integration-test/sources/ruleset.merge-baseline.json
         - ./integration-test/sources/ruleset.merge-specific.json
+        - integration-test/sources/ruleset.merge-specific.json
