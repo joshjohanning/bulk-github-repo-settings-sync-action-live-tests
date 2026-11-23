@@ -31,7 +31,7 @@ const FILE_SYNCED_STATE = [
 const INLINE_SYNCED_STATE = [
   ...BASELINES.inline,
   { name: 'live-inline-new', color: generatedColor('live-inline-new'), description: '' },
-  { name: 'live-inline, comma', color: generatedColor('live-inline, comma'), description: '' }
+  { name: 'live-inline multiword', color: generatedColor('live-inline multiword'), description: '' }
 ];
 
 const SCENARIOS = {
@@ -50,7 +50,7 @@ const SCENARIOS = {
     repos: {
       'it-labels-inline-a': {
         status: 'updated',
-        created: ['live-inline-new', 'live-inline, comma'],
+        created: ['live-inline-new', 'live-inline multiword'],
         updated: [],
         unchanged: 1,
         state: INLINE_SYNCED_STATE
