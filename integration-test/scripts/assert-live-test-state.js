@@ -290,6 +290,19 @@ async function assertCodeScanningRepo(octokit, repoFullName, result) {
   assertSubResult(repoFullName, result, 'code-scanning');
 }
 
+async function assertCodeScanningDisableRepo(octokit, repoFullName, result) {
+  const [owner, repo] = repoFullName.split('/');
+  const { data } = await octokit.rest.codeScanning.getDefaultSetup({ owner, repo });
+
+  assert(data.state === 'not-configured', `${repoFullName} CodeQL default setup should be disabled`);
+  assert(result.success === true, `${repoFullName} result should be successful`);
+  assert(result.hasWarnings === false, `${repoFullName} should not have warnings`);
+  assert(result.codeScanningChange?.from === 'configured', `${repoFullName} should report CodeQL previously configured`);
+  assert(result.codeScanningChange?.to === 'not-configured', `${repoFullName} should report CodeQL disabled`);
+  assert(result.codeScanningDisabled === true, `${repoFullName} should report codeScanningDisabled=true`);
+  assertSubResult(repoFullName, result, 'code-scanning', 'changed', { message: 'Disabled CodeQL scanning' });
+}
+
 async function assertSecretScanningRepo(octokit, repoFullName, result) {
   const repository = await getRepository(octokit, repoFullName);
 
@@ -864,8 +877,8 @@ async function main() {
     const { repos } = readIntegrationConfig();
     const results = parseResultsOutput();
 
-    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 46, 'updated-repositories should equal 46');
-    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 42, 'changed-repositories should equal 42');
+    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 47, 'updated-repositories should equal 47');
+    assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 43, 'changed-repositories should equal 43');
     assert(parseIntegerOutput('ACTION_PENDING_REPOSITORIES') === 2, 'pending-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 2, 'unchanged-repositories should equal 2');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
@@ -914,6 +927,8 @@ async function main() {
         await assertImmutableReleasesRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-code-scanning-a')) {
         await assertCodeScanningRepo(octokit, repoConfig.repo, result);
+      } else if (repoConfig.repo.endsWith('/it-code-scanning-disable-a')) {
+        await assertCodeScanningDisableRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-secret-scanning-a')) {
         await assertSecretScanningRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-push-protection-a')) {

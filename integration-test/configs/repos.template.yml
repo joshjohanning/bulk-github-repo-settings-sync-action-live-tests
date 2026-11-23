@@ -48,6 +48,9 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-code-scanning-a
     code-scanning: true
 
+  - repo: __LIVE_TEST_ORG__/it-code-scanning-disable-a
+    code-scanning: false
+
   - repo: __LIVE_TEST_ORG__/it-secret-scanning-a
     secret-scanning: true
 

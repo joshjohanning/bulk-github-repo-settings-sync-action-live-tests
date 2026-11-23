@@ -16,6 +16,13 @@ The main suite checks repository projects and wiki toggles, both GitHub Actions
 workflow-permission fields and SHA-pinning states, plus environment deployment
 policies with both branch and tag patterns.
 
+The CodeQL disable scenario seeds a JavaScript file and enables default setup
+before applying `code-scanning: false`. Preparation verifies the configured
+JavaScript baseline; assertions check the configured-to-not-configured result,
+`codeScanningDisabled`, the changed sub-result with the summary detail
+`Disabled CodeQL scanning`, and the actual default setup API state. Setup errors
+and timeouts fail the suite rather than skipping the scenario.
+
 Label-sync scenarios cover case-insensitive matching and duplicate names, plus
 the multiword inline label `live-inline multiword`. Success fixtures avoid commas
 in label names, which GitHub rejects with a label-name validation error.
@@ -73,6 +80,7 @@ In this repository, set:
 - **Contents**: Read & write (create/update/delete files)
 - **Pull requests**: Read & write (PR-based file sync, repository label sync)
 - **Workflows**: Read & write (sync `.github/workflows/`)
+- **Code scanning alerts**: Read & write (enable and disable CodeQL default setup)
 - **Custom properties** (org-level): Admin (repo selection tests)
 
 ### Repository Configuration

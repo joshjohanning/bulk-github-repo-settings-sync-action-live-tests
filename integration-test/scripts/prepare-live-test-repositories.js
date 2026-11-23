@@ -6,6 +6,7 @@ import {
   createPullRequest,
   createRuleset,
   createOctokit,
+  assert,
   ensureForkExists,
   deleteBranchIfExists,
   deleteEnvironmentIfExists,
@@ -347,6 +348,31 @@ async function resetCodeScanningRepo(octokit, repoFullName) {
   info(`Resetting code scanning baseline for ${repoFullName}`);
   await ensureRepositoryExists(octokit, repoFullName);
   await setCodeScanningDefaultSetupState(octokit, repoFullName, 'not-configured');
+}
+
+async function resetCodeScanningDisableRepo(octokit, repoFullName) {
+  info(`Enabling CodeQL default setup baseline for ${repoFullName}`);
+  const repository = await ensureRepositoryExists(octokit, repoFullName);
+  await putFileContent(
+    octokit,
+    repoFullName,
+    'index.js',
+    'console.log("CodeQL live integration fixture");\n',
+    repository.default_branch,
+    'chore: seed CodeQL supported language fixture'
+  );
+  await setCodeScanningDefaultSetupState(octokit, repoFullName, 'configured');
+
+  const [owner, repo] = repoFullName.split('/');
+  for (let attempt = 0; attempt < 60; attempt++) {
+    const { data } = await octokit.rest.codeScanning.getDefaultSetup({ owner, repo });
+    if (data.state === 'configured' && data.languages?.includes('javascript-typescript')) {
+      info(`${repoFullName} CodeQL default setup is configured for JavaScript`);
+      return;
+    }
+    await new Promise(resolve => setTimeout(resolve, 5000));
+  }
+  assert(false, `${repoFullName} CodeQL default setup did not become configured for JavaScript within 5 minutes`);
 }
 
 async function resetSecretScanningRepo(octokit, repoFullName) {
@@ -701,6 +727,8 @@ async function resetRepo(octokit, repoConfig) {
     await resetImmutableReleasesRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-code-scanning-a')) {
     await resetCodeScanningRepo(octokit, repoFullName);
+  } else if (repoFullName.endsWith('/it-code-scanning-disable-a')) {
+    await resetCodeScanningDisableRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-secret-scanning-a')) {
     await resetSecretScanningRepo(octokit, repoFullName);
   } else if (repoFullName.endsWith('/it-push-protection-a')) {
