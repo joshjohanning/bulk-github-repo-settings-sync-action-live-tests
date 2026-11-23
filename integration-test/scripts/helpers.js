@@ -183,6 +183,92 @@ export async function updateRepositorySettings(octokit, repoFullName, settings) 
   await paceMutation();
 }
 
+export async function getActionsPermissions(octokit, repoFullName) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  const { data } = await octokit.request('GET /repos/{owner}/{repo}/actions/permissions', {
+    owner,
+    repo
+  });
+  return data;
+}
+
+export async function setActionsShaPinningRequired(octokit, repoFullName, required) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  const current = await getActionsPermissions(octokit, repoFullName);
+  const params = {
+    owner,
+    repo,
+    enabled: current.enabled,
+    sha_pinning_required: required
+  };
+
+  if (current.allowed_actions !== undefined) {
+    params.allowed_actions = current.allowed_actions;
+  }
+
+  await octokit.request('PUT /repos/{owner}/{repo}/actions/permissions', params);
+  await paceMutation();
+}
+
+export async function getWorkflowPermissions(octokit, repoFullName) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  const { data } = await octokit.request('GET /repos/{owner}/{repo}/actions/permissions/workflow', {
+    owner,
+    repo
+  });
+  return data;
+}
+
+export async function setWorkflowPermissions(octokit, repoFullName, permissions) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  await octokit.request('PUT /repos/{owner}/{repo}/actions/permissions/workflow', {
+    owner,
+    repo,
+    ...permissions
+  });
+  await paceMutation();
+}
+
+export async function deleteEnvironmentIfExists(octokit, repoFullName, environmentName) {
+  const { owner, repo } = getRepoParts(repoFullName);
+
+  try {
+    await octokit.request('DELETE /repos/{owner}/{repo}/environments/{environment_name}', {
+      owner,
+      repo,
+      environment_name: environmentName
+    });
+    await paceMutation();
+  } catch (caughtError) {
+    if (caughtError.status !== 404) {
+      throw caughtError;
+    }
+  }
+}
+
+export async function getEnvironment(octokit, repoFullName, environmentName) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  const { data } = await octokit.request('GET /repos/{owner}/{repo}/environments/{environment_name}', {
+    owner,
+    repo,
+    environment_name: environmentName
+  });
+  return data;
+}
+
+export async function listEnvironmentDeploymentBranchPolicies(octokit, repoFullName, environmentName) {
+  const { owner, repo } = getRepoParts(repoFullName);
+  const { data } = await octokit.request(
+    'GET /repos/{owner}/{repo}/environments/{environment_name}/deployment-branch-policies',
+    {
+      owner,
+      repo,
+      environment_name: environmentName
+    }
+  );
+  return data.branch_policies || [];
+}
+
 export async function setRepositoryArchived(octokit, repoFullName, archived) {
   await updateRepositorySettings(octokit, repoFullName, { archived });
 }
