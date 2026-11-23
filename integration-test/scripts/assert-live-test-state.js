@@ -478,6 +478,73 @@ async function assertRulesetsUpdateRepo(octokit, repoFullName, result) {
   });
 }
 
+async function assertRulesetsMultiRepo(octokit, repoFullName, result) {
+  const managedRuleset = await getRulesetByName(octokit, repoFullName, 'Integration Branch Protection');
+  const secondaryRuleset = await getRulesetByName(octokit, repoFullName, 'Integration Multi Secondary');
+  const obsoleteRuleset = await getRulesetByName(octokit, repoFullName, 'Obsolete Integration Ruleset');
+
+  assert(managedRuleset, `${repoFullName} should have the managed ruleset`);
+  assert(secondaryRuleset, `${repoFullName} should have the secondary managed ruleset`);
+  assert(obsoleteRuleset === null, `${repoFullName} should not have the obsolete ruleset anymore`);
+  assert(managedRuleset.enforcement === 'active', `${repoFullName} managed ruleset should be active`);
+  assert(
+    managedRuleset.rules.some(rule => rule.type === 'non_fast_forward'),
+    `${repoFullName} managed ruleset should include the non_fast_forward rule`
+  );
+  assert(
+    JSON.stringify(secondaryRuleset.conditions?.ref_name?.include) === JSON.stringify(['refs/heads/release/*']),
+    `${repoFullName} secondary ruleset should target release branches`
+  );
+  assert(result.success === true, `${repoFullName} result should be successful`);
+  assert(result.hasWarnings === false, `${repoFullName} should not have warnings`);
+  assert(result.rulesetSync?.success === true, `${repoFullName} ruleset sync should be successful`);
+  assert(
+    result.rulesetSync?.ruleset === 'updated',
+    `${repoFullName} ruleset sync should report updated for the first changed ruleset`
+  );
+  assert(result.rulesetSync?.rulesetId === managedRuleset.id, `${repoFullName} should report managed ruleset ID`);
+  assert(
+    result.rulesetSync?.deletedRulesets?.length === 1 &&
+      result.rulesetSync.deletedRulesets[0].name === 'Obsolete Integration Ruleset' &&
+      result.rulesetSync.deletedRulesets[0].deleted === true,
+    `${repoFullName} should report only the obsolete ruleset as deleted`
+  );
+
+  const rulesetSubResults = result.subResults.filter(subResult => subResult.kind.startsWith('ruleset-'));
+  assert(
+    JSON.stringify(rulesetSubResults.map(subResult => subResult.kind)) ===
+      JSON.stringify(['ruleset-update', 'ruleset-create', 'ruleset-delete']),
+    `${repoFullName} should report ruleset update, create, and delete sub-results in order, got: ${rulesetSubResults
+      .map(subResult => subResult.kind)
+      .join(', ')}`
+  );
+  const updateSubResult = assertSubResult(repoFullName, result, 'ruleset-update', 'changed', {
+    rulesetName: 'Integration Branch Protection',
+    rulesetId: managedRuleset.id
+  });
+  const createSubResult = assertSubResult(repoFullName, result, 'ruleset-create', 'changed', {
+    rulesetName: 'Integration Multi Secondary',
+    rulesetId: secondaryRuleset.id
+  });
+  const deleteSubResult = assertSubResult(repoFullName, result, 'ruleset-delete', 'changed', {
+    rulesetName: 'Obsolete Integration Ruleset'
+  });
+  const expectedMessages = [
+    `update "Integration Branch Protection" (ID: ${managedRuleset.id})`,
+    'create "Integration Multi Secondary"',
+    `delete "Obsolete Integration Ruleset" (ID: ${deleteSubResult.rulesetId})`
+  ];
+  const actualMessages = [updateSubResult, createSubResult, deleteSubResult].map(subResult => subResult.message);
+  assert(
+    JSON.stringify(actualMessages) === JSON.stringify(expectedMessages),
+    `${repoFullName} ruleset sub-result messages should match, got: ${JSON.stringify(actualMessages)}`
+  );
+  assert(
+    result.rulesetSync?.message === expectedMessages.join('; '),
+    `${repoFullName} ruleset sync message should join every operation, got: ${result.rulesetSync?.message}`
+  );
+}
+
 async function assertPullRequestTemplateRepo(octokit, repoFullName, result) {
   await assertSinglePrFileSyncRepo(octokit, repoFullName, result, {
     branchName: 'pull-request-template-sync',
@@ -947,6 +1014,8 @@ async function main() {
         await assertRulesetsRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-rulesets-update-a')) {
         await assertRulesetsUpdateRepo(octokit, repoConfig.repo, result);
+      } else if (repoConfig.repo.endsWith('/it-rulesets-multi-a')) {
+        await assertRulesetsMultiRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-pull-request-template-a')) {
         await assertPullRequestTemplateRepo(octokit, repoConfig.repo, result);
       } else if (repoConfig.repo.endsWith('/it-workflow-single-a')) {

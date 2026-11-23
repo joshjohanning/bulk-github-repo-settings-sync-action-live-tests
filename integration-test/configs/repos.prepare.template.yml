@@ -28,6 +28,7 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-gitignore-a
   - repo: __LIVE_TEST_ORG__/it-rulesets-a
   - repo: __LIVE_TEST_ORG__/it-rulesets-update-a
+  - repo: __LIVE_TEST_ORG__/it-rulesets-multi-a
   - repo: __LIVE_TEST_ORG__/it-pull-request-template-a
   - repo: __LIVE_TEST_ORG__/it-workflow-single-a
   - repo: __LIVE_TEST_ORG__/it-workflows-a

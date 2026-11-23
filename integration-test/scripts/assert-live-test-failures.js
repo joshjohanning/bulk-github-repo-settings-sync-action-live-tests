@@ -2,6 +2,7 @@ import {
   assert,
   createOctokit,
   getRepository,
+  getRulesetByName,
   info,
   listLabels,
   listOpenPullRequestsForBranch,
@@ -33,14 +34,14 @@ async function main() {
     const { repos } = readIntegrationConfig();
     const results = parseResultsOutput();
 
-    assert(repos.length === 8, 'failure config should include exactly eight repositories');
-    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 8, 'updated-repositories should equal 8');
+    assert(repos.length === 9, 'failure config should include exactly nine repositories');
+    assert(parseIntegerOutput('ACTION_UPDATED_REPOSITORIES') === 9, 'updated-repositories should equal 9');
     assert(parseIntegerOutput('ACTION_CHANGED_REPOSITORIES') === 0, 'changed-repositories should equal 0');
     assert(parseIntegerOutput('ACTION_PENDING_REPOSITORIES') === 0, 'pending-repositories should equal 0');
-    assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 8, 'unchanged-repositories should equal 8');
+    assert(parseIntegerOutput('ACTION_UNCHANGED_REPOSITORIES') === 9, 'unchanged-repositories should equal 9');
     assert(parseIntegerOutput('ACTION_FAILED_REPOSITORIES') === 0, 'failed-repositories should equal 0');
-    assert(parseIntegerOutput('ACTION_WARNING_REPOSITORIES') === 7, 'warning-repositories should equal 7');
-    assert(results.length === 8, 'results output should include every configured repository');
+    assert(parseIntegerOutput('ACTION_WARNING_REPOSITORIES') === 8, 'warning-repositories should equal 8');
+    assert(results.length === 9, 'results output should include every configured repository');
 
     const resultsByRepo = new Map(results.map(result => [result.repository, result]));
 
@@ -76,6 +77,30 @@ async function main() {
         assert(
           result.rulesetSyncWarning?.includes('Failed to read or parse ruleset file'),
           `${repoFullName} should report invalid ruleset file`
+        );
+      } else if (repoFullName.endsWith('/it-duplicate-ruleset-names-a')) {
+        assert(result.success === true, `${repoFullName} result should be successful`);
+        assert(result.hasWarnings === true, `${repoFullName} should have warnings`);
+        assert(result.rulesetSync?.success === false, `${repoFullName} ruleset sync should fail`);
+        assert(
+          result.rulesetSyncWarning?.includes(
+            'Duplicate ruleset name(s) found across files: Integration Branch Protection'
+          ),
+          `${repoFullName} should report the duplicate ruleset name, got: ${result.rulesetSyncWarning}`
+        );
+        assert(
+          result.subResults?.some(subResult => subResult.kind === 'ruleset-sync' && subResult.status === 'warning'),
+          `${repoFullName} should include a ruleset-sync warning sub-result`
+        );
+        assert(
+          !result.subResults?.some(subResult =>
+            ['ruleset-create', 'ruleset-update', 'ruleset-delete'].includes(subResult.kind)
+          ),
+          `${repoFullName} should not report ruleset create, update, or delete sub-results`
+        );
+        assert(
+          (await getRulesetByName(octokit, repoFullName, 'Integration Branch Protection')) === null,
+          `${repoFullName} should not create a ruleset when ruleset names are duplicated`
         );
       } else if (repoFullName.endsWith('/it-invalid-package-json-file-a')) {
         assert(result.success === true, `${repoFullName} result should be successful`);

@@ -12,6 +12,12 @@ repos:
   - repo: __LIVE_TEST_ORG__/it-invalid-rulesets-file-a
     rulesets-file: ./integration-test/sources/ruleset.invalid.json
 
+  # Two different files that declare the same ruleset name.
+  - repo: __LIVE_TEST_ORG__/it-duplicate-ruleset-names-a
+    rulesets-file:
+      - ./integration-test/sources/ruleset.explicit-exclude.json
+      - ./integration-test/sources/ruleset.duplicate-name.json
+
   - repo: __LIVE_TEST_ORG__/it-invalid-package-json-file-a
     package-json-file: ./integration-test/sources/package.invalid.json
 
